@@ -1,0 +1,28 @@
+{
+    "name": "backbone.hal",
+    "description" : "Easy use of HAL in your Backbone application.",
+    "version" : "0.1.0",
+    "private" : true,
+    "homepage": "https://github.com/gomoob/backbone.hateoas",
+    "authors": [
+        "bgaillard <baptiste.gaillard@gomoob.com>",
+        "simonbaudry <simon.baudry@gomoob.com>"
+    ],
+    "keywords" : [
+        "gomoob", 
+        "widget"  
+    ],
+    "main" : [
+        "dist/backbone.hateoas.min.js"
+    ],
+    "ignore": [
+        "target/*",
+        ".gitignore",
+        ".jshintrc", 
+        ".project",
+        "Gruntfile.js",
+        "package.json"
+    ],
+    "dependencies": {},
+    "devDependencies": {}
+}
