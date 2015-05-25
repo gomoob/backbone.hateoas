@@ -20,8 +20,7 @@ module.exports = function(grunt) {
          */
         instrument : {
             files : [
-                'src/**/*.js',
-                '!src/umd-wrapper.js'
+                'src/**/*.js'
             ], 
             options : {
                 lazy : true,

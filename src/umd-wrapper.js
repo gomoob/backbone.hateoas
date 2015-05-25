@@ -2,9 +2,9 @@
     
     if (typeof define === 'function' && define.amd) {
         
-        define([], function() {
+        define(['backbone', 'underscore', 'backbone.paginator'], function(Backbone, Underscore, PageableCollection) {
 
-            return (root.WidgetFactory = factory(root));
+            return (root.Hal = factory(root, Backbone, _, PageableCollection));
 
         });
     
@@ -12,13 +12,17 @@
   
     else if (typeof exports !== 'undefined') {
     
-        module.exports = factory(root);
+        var Backbone = require('backbone');
+        var _ = require('underscore');
+        var PageableCollection = require('backbone.paginator');
+        
+        module.exports = factory(root, Backbone, _, PageableCollection);
 
     }
     
     else {
     
-        root.WidgetFactory = factory(root);
+        root.Hal = factory(root, root.Backbone, root._, root.PageableCollection);
     
     }
     
@@ -35,6 +39,6 @@
     // @include model.js
     // @include collection.js
 
-    return WidgetFactory;
+    return Hal;
 
 }));

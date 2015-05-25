@@ -20,4 +20,4 @@ global.prepareHTML = require('./html-injector');
 // because it contains very simple code
 Hal = {};
 
-require(process.env.srcDir + '/hal');
+require(process.env.srcDir + '/umd-wrapper');
