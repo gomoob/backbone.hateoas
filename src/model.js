@@ -13,13 +13,28 @@
  * 
  * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
  */ 
-Hal.Model = Backbone.Model.extend({urlRoot : configuration.rootUrl});
-Hal.Model.prototype.getLink = function(linkName) {
-    return this.get('_links').get(linkName);
-}; 
+Hal.Model = Backbone.Model.extend({
+    
+    getLink : function(linkName) {
+
+        return this.get('_links').get(linkName);
+
+    }, 
+    
+    getLinks : function() {
+        
+        return this.get('_links');
+        
+    }
+
+});
+
 Hal.Model.prototype.getEmbedded = function(embeddedName) {
+
     return this.get('_embedded').get(embeddedName);
+
 };
+
 Hal.Model.prototype.url = function() {
     
     if(this.get('_links') && this.get('_links').get('self') && this.get('_links').get('self').get('href')) {
