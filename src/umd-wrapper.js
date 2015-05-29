@@ -4,7 +4,9 @@
         
         define(['backbone', 'underscore', 'backbone.paginator'], function(Backbone, Underscore, PageableCollection) {
 
-            return (root.Hal = factory(root, Backbone, _, PageableCollection));
+            Backbone.PageableCollection = PageableCollection;
+            
+            return (root.Hal = factory(root, Backbone, _));
 
         });
     
@@ -14,19 +16,19 @@
     
         var Backbone = require('backbone');
         var _ = require('underscore');
-        var PageableCollection = require('backbone.paginator');
+        Backbone.PageableCollection = require('backbone.paginator');
         
-        module.exports = factory(root, Backbone, _, PageableCollection);
+        module.exports = factory(root, Backbone, _);
 
     }
     
     else {
     
-        root.Hal = factory(root, root.Backbone, root._, root.PageableCollection);
+        root.Hal = factory(root, root.Backbone, root._);
     
     }
     
-}(this, function(root) {
+}(this, function(root, Backbone, _) {
 
     'use strict';
     
