@@ -34,9 +34,10 @@
         "package.json"
     ],
     "dependencies": {
-        "backbone": "1.0.0 - 1.2.0",
+        "backbone": "1.0.0 - 1.1.2",
         "underscore": "1.4.4 - 1.6.0",
-        "backbone.paginator": "2.0.0 - 2.0.2"
+        "backbone.paginator": "2.0.0 - 2.0.2",
+        "jquery": "^1.8.0 || ^2.0.0"
     },
     "devDependencies": {}
 }

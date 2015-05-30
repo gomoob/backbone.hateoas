@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sample backbone.hateoas usage</title>
+    </head>
+    <body>
+        Hello <span id="name"></span> !
+    </body>
+    
+    <!-- Required dependencies -->
+    <script type="text/javascript" src="../../bower_components/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="../../bower_components/underscore/underscore.js"></script>
+    <script type="text/javascript" src="../../bower_components/backbone/backbone.js"></script>
+    <script type="text/javascript" src="../../bower_components/backbone.paginator/lib/backbone.paginator.min.js"></script>
+    <script type="text/javascript" src="../../dist/backbone.hateoas.js"></script>
+    
+    <!-- Sample usage -->
+    <script type="text/javascript">
+
+        var user = new Hal.Model();
+        user.urlRoot = 'http://localhost/backbone.hateoas/test/api/users/1'; 
+        user.fetch().done(function() {
+            $('#name').text(user.get('firstName') + ' ' + user.get('lastName'));
+        });
+
+    </script>
+</html>

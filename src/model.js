@@ -29,53 +29,55 @@ Hal.Model = Backbone.Model.extend({
 
 });
 
+_.extend(Hal.Model.prototype, {
+
+    url : function() {
+        
+        if(this.get('_links') && this.get('_links').get('self') && this.get('_links').get('self').get('href')) {
+            
+            return this.get('_links').get('self').get('href');
+            
+        } else {
+
+            return Backbone.Model.prototype.url.call(this);
+
+            /*
+            var url = this.urlRoot;
+            
+            if(this.urlRoot.slice(-1) !== '/') {
+                
+                url += '/';
+                
+            }
+
+            if (this.has('id')) {
+
+                url = url + '/' + this.get('id');
+
+            }
+            
+            if(this.queryParams) {
+                
+                url = url + '?' + $.param(this.queryParams);
+                
+            }
+
+            return url;
+            */
+            
+        }
+        
+    }
+    
+});
+
 Hal.Model.prototype.getEmbedded = function(embeddedName) {
 
     return this.get('_embedded').get(embeddedName);
 
 };
 
-Hal.Model.prototype.url = function() {
-    
-    if(this.get('_links') && this.get('_links').get('self') && this.get('_links').get('self').get('href')) {
-        
-        return this.get('_links').get('self').get('href');
-        
-    } else {
-        
-        if(!this.halResourceName) {
-            
-            throw new Error('A \'halResourceName\' parameter is required !');
-            
-        }
-        
-        var url = this.urlRoot;
-        
-        if(this.urlRoot.slice(-1) !== '/') {
-            
-            url += '/';
-            
-        }
-        
-        url += this.halResourceName;
-    
-        if (this.has('id')) {
 
-            url = url + '/' + this.get('id');
-
-        }
-        
-        if(this.queryParams) {
-            
-            url = url + '?' + $.param(this.queryParams);
-            
-        }
-
-        return url;
-        
-    }
-    
-};
 Hal.Model.prototype.parse = function(resp, options) {
 
     // Create a response without the '_links' and '_embedded' properties
