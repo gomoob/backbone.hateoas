@@ -84,26 +84,46 @@
     
                 }
     
+                // The "templated" property can only be false or true
+                this.set('templated', this.get('templated') === true);
+    
             },
     
+            /**
+             * Gets the `deprecation` property, the `deprecation` property is OPTIONAL.
+             * 
+             * Its presence indicates that the link is to be deprecated (i.e. removed) at a future date.  Its value is a URL 
+             * that SHOULD provide further information about the deprecation.
+             * 
+             * A client SHOULD provide some notification (for example, by logging a warning message) whenever it traverses 
+             * over a link that has this property.  The notification SHOULD include the deprecation property's value so that 
+             * a client manitainer can easily find information about the deprecation.
+             * 
+             * @return {URL} The value of the `deprecation` property. 
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.4
+             */
             getDeprecation : function() {
               
                 return this.get('deprecation');
                 
             },
             
+            /**
+             * Gets the `name` property, the `name` property is OPTIONNAL.
+             * 
+             * Its value MAY be used as a secondary key for selecting Link Objects which share the same relation type.
+             * 
+             * @return {String} The value of the `name` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.5
+             */
             getName : function() {
               
                 return this.get('name');
                 
             },
-            
-            isTemplated : function() {
-            
-                return this.get('templated');
-                
-            },
-            
+    
             /**
              * Gets the `href` property, the `href` property is REQUIRED.
              * 
@@ -121,31 +141,103 @@
                 return this.get('href');
     
             },
-            
+    
+            /**
+             * Gets the `hreflang` property, the `hreflang` property is OPTIONAL.
+             * 
+             * Its value is a string and is intended for indicating the language of the target resource (as defined by 
+             * [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
+             * 
+             * @return {String} The value of the `hreflang` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.8
+             */
             getHreflang : function() {
               
                 return this.get('hreflang');
                 
             },
             
+            /**
+             * Gets the `profile` property, the `profile` property is OPTIONAL.
+             * 
+             * Its value is a string which is a URI that hints about the profile (as defined by [I-D.wilde-profile-link](
+             * https://tools.ietf.org/html/draft-kelly-json-hal-06#ref-I-D.wilde-profile-link "I-D.wilde-profile-link")) of 
+             * the target resource.
+             * 
+             * @return {URI} The value of the `profile` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.6
+             */
             getProfile : function() {
               
                 return this.get('profile');
                 
             },
             
+            /**
+             * Gets the `title` property, the `title` property is OPTIONAL.
+             * 
+             * Its value is a string and is intended for labelling the link with a human-readable identifier (as defined by 
+             * [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
+             * 
+             * @return {String} The value of the `title` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.7
+             */
             getTitle : function() {
               
                 return this.get('title');
                 
             },
             
+            /**
+             * Gets the `type` property, the `type` property is OPTIONAL.
+             * 
+             * Its value is a string used as a hint to indicate the media type expected when dereferencing the target 
+             * resource.
+             * 
+             * @return {String} The value of the `type` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.3
+             */
             getType : function() {
               
                 return this.get('type');
                 
             },
             
+            /**
+             * Gets the `templated` property, the `templated` property is OPTIONAL.
+             * 
+             * Its value is boolean and SHOULD be true when the Link Object's "href" property is a URI Template.
+             * 
+             * Its value SHOULD be considered false if it is undefined or any other value than true.
+             * 
+             * @return {Boolean} The value of the `templated` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.2
+             */
+            isTemplated : function() {
+    
+                return this.get('templated');
+    
+            },
+    
+            /**
+             * Sets the `deprecation` property, the `deprecation` property is OPTIONAL.
+             * 
+             * Its presence indicates that the link is to be deprecated (i.e. removed) at a future date.  Its value is a URL 
+             * that SHOULD provide further information about the deprecation.
+             * 
+             * A client SHOULD provide some notification (for example, by logging a warning message) whenever it traverses 
+             * over a link that has this property.  The notification SHOULD include the deprecation property's value so that 
+             * a client manitainer can easily find information about the deprecation.
+             * 
+             * @param {URL} deprecation The value of the `deprecation` property. 
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.4
+             */
             setDeprecation : function(deprecation) {
               
                 this.set('deprecation', deprecation);
@@ -170,36 +262,97 @@
     
             },
             
+            /**
+             * Sets the `hreflang` property, the `hreflang` property is OPTIONAL.
+             * 
+             * Its value is a string and is intended for indicating the language of the target resource (as defined by 
+             * [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
+             * 
+             * @param {String} hreflang The value of the `hreflang` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.8
+             */
             setHreflang : function(hreflang) {
               
                 this.set('hreflang', hreflang);
                 
             },
             
+            /**
+             * Gets the `name` property, the `name` property is OPTIONNAL.
+             * 
+             * Its value MAY be used as a secondary key for selecting Link Objects which share the same relation type.
+             * 
+             * @param {String} name The value of the `name` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.5
+             */
             setName : function(name) {
               
                 this.set('name', name);
                 
             },
             
+            /**
+             * Sets the `profile` property, the `profile` property is OPTIONAL.
+             * 
+             * Its value is a string which is a URI that hints about the profile (as defined by [I-D.wilde-profile-link](
+             * https://tools.ietf.org/html/draft-kelly-json-hal-06#ref-I-D.wilde-profile-link "I-D.wilde-profile-link")) of 
+             * the target resource.
+             * 
+             * @param {URI} profile The value of the `profile` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.6
+             */
             setProfile : function(profile) {
               
                 this.set('profile', profile);
                 
             },
             
+            /**
+             * Sets the `templated` property, the `templated` property is OPTIONAL.
+             * 
+             * Its value is boolean and SHOULD be true when the Link Object's "href" property is a URI Template.
+             * 
+             * Its value SHOULD be considered false if it is undefined or any other value than true.
+             * 
+             * @param {Boolean} templated The value of the `templated` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.2
+             */
             setTemplated : function(templated) {
                 
                 this.set('templated', templated);
                 
             },
             
+            /**
+             * Sets the `title` property, the `title` property is OPTIONAL.
+             * 
+             * Its value is a string and is intended for labelling the link with a human-readable identifier (as defined by 
+             * [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
+             * 
+             * @param {String} title The value of the `title` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.7
+             */
             setTitle : function(title) {
               
                 this.set('title', title);
                 
             },
             
+            /**
+             * Sets the `type` property, the `type` property is OPTIONAL.
+             * 
+             * Its value is a string used as a hint to indicate the media type expected when dereferencing the target 
+             * resource.
+             * 
+             * @param {String} type The value of the `type` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.3
+             */
             setType : function(type) {
                 
                 this.set('type', type);
@@ -224,23 +377,200 @@
      * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
      */ 
     Hal.Model = Backbone.Model.extend({
-        
-        getLink : function(linkName) {
     
-            return this.get('_links').get(linkName);
+        getEmbedded : function(rel) {
+    
+            return this.get('_embedded').get(rel);
+    
+        },
+    
+        getLink : function(rel) {
+    
+            return this.get('_links').get(rel);
     
         }, 
         
         getLinks : function() {
-            
+    
             return this.get('_links');
+    
+        },
+        
+        parse : function(resp, options) {
+    
+            // Create a response without the '_links' and '_embedded' properties
+            var parsed = _.omit(resp, '_links', '_embedded');
+    
+            // HTTP PATCH with no content is allowed.
+            if(options.patch && _.size(parsed) === 0) {
+    
+                return parsed;
+                
+            }
             
-        }
+            // Parse the embedded resources
+            parsed._embedded = new Hal.Model();
+            _.map(
+                resp._embedded,
+                function(resource, attributeName) {
     
-    });
+                    var halObject = null;
+                    
+                    // If the '_embedded' resource is an array this is a potential Hal Collection
+                    if(_.isArray(resource)) {
+                        
+                        // If the current model class defines a specific configuration for the attached embedded resource
+                        if(this.hal && this.hal[attributeName]) {
+                            
+                            var CollectionClass = this.hal[attributeName].type;
+                            
+                            halObject = new CollectionClass(
+                                resource, 
+                                {
+                                    mode : 'server', 
+                                    model: this.hal[attributeName].model,
+                                    
+                                    // WARNING: This is very important to force Backbone to call the Hal.Model.parse method 
+                                    //          on embedded resources too. 
+                                    parse : true
+                                }
+                            );
     
-    _.extend(Hal.Model.prototype, {
+                        } 
+                        
+                        // Otherwise we use a default configuration
+                        else {
+                        
+                            halObject = new Backbone.Collection(
+                                resource, 
+                                { 
+                                    mode : 'server',
+                                    model : Hal.Model,
+                                    
+                                    // WARNING: This is very important to force Backbone to call the Hal.Model.parse method 
+                                    //          on embedded resources too.
+                                    parse : true
+                                }
+                            );
     
+                        }
+                            
+                    } 
+                    
+                    // Otherwise the attached embedded resource is a simple model
+                    else {
+    
+                        halObject = new Hal.Model(resource, { parse : true });
+                        
+                    }
+                    
+                    parsed._embedded.set(attributeName, halObject);
+                    this.set(attributeName, halObject);
+                    
+                }, 
+                this
+            );
+            
+            // Parse the links
+            parsed._links = new Hal.Model();
+            _.map(
+                resp._links, 
+                function(link, linkName) {
+                    
+                    parsed._links.set(linkName, new Hal.Link(link));
+    
+                },
+                this
+            );
+            
+            return parsed;
+    
+        },
+        
+        toJSON : function(options) {
+    
+            // Create a response without the '_links' and '_embedded' properties
+            var object = _.omit(this.attributes, '_links', '_embedded'),
+                halObject = {};
+                
+            halObject._embedded = {};
+            halObject._links = {};
+            
+            _.each(object, function(value, key) {
+               
+                if(_.isArray(value)) {
+                    
+                    halObject[key] = [];
+                    
+                    _.each(value, function(value, index) {
+                      
+                        if(_.isObject(value) && value instanceof Backbone.Collection) {
+                            
+                            halObject[key].push(value.toJSON());
+                            
+                        }
+                        
+                        else {
+                            
+                            halObject[key] = value;
+                            
+                        }
+                        
+                    });
+                    
+                }
+                
+                else if(_.isObject(value)) {
+                    
+                    if(value instanceof Backbone.Model || value instanceof Backbone.Collection) {
+                        
+                        halObject[key] = value.toJSON();
+                        
+                    } 
+                    
+                }
+                
+                else {
+                    
+                    halObject[key] = value;
+                    
+                }
+                
+            });
+            
+            if(_.has(this.attributes, '_embedded')) {
+            
+                var _embedded = this.attributes._embedded;
+                
+                _.each(_embedded.attributes, function(value, key) {
+                   
+                    if(value instanceof Backbone.Model || value instanceof Backbone.Collection) {
+                        halObject._embedded[key] = value.toJSON();
+                    }
+                    
+                });
+                
+            }
+            
+            if(_.has(this.attributes, '_links')) {
+            
+                var _links = this.attributes._links;
+                
+                _.each(_links.attributes, function(value, key) {
+                   
+                    if(value instanceof Backbone.Model) {
+                        halObject._links[key] = {
+                            href : value.get('href')
+                        };
+                    }
+                    
+                });
+                
+            }
+            
+            return halObject;        
+        },
+        
         url : function() {
             
             if(this.get('_links') && this.get('_links').get('self') && this.get('_links').get('self').get('href')) {
@@ -251,217 +581,12 @@
     
                 return Backbone.Model.prototype.url.call(this);
     
-                /*
-                var url = this.urlRoot;
-                
-                if(this.urlRoot.slice(-1) !== '/') {
-                    
-                    url += '/';
-                    
-                }
-    
-                if (this.has('id')) {
-    
-                    url = url + '/' + this.get('id');
-    
-                }
-                
-                if(this.queryParams) {
-                    
-                    url = url + '?' + $.param(this.queryParams);
-                    
-                }
-    
-                return url;
-                */
-                
             }
             
         }
-        
+    
     });
     
-    Hal.Model.prototype.getEmbedded = function(embeddedName) {
-    
-        return this.get('_embedded').get(embeddedName);
-    
-    };
-    
-    
-    Hal.Model.prototype.parse = function(resp, options) {
-    
-        // Create a response without the '_links' and '_embedded' properties
-        var parsed = _.omit(resp, '_links', '_embedded');
-    
-        // HTTP PATCH with no content is allowed.
-        if(options.patch && _.size(parsed) === 0) {
-    
-            return parsed;
-            
-        }
-        
-        // Parse the embedded resources
-        parsed._embedded = new Hal.Model();
-        _.map(
-            resp._embedded,
-            function(resource, attributeName) {
-    
-                var halObject = null;
-                
-                // If the '_embedded' resource is an array this is a potential Hal Collection
-                if(_.isArray(resource)) {
-                    
-                    // If the current model class defines a specific configuration for the attached embedded resource
-                    if(this.hal && this.hal[attributeName]) {
-                        
-                        var CollectionClass = this.hal[attributeName].type;
-                        
-                        halObject = new CollectionClass(
-                            resource, 
-                            {
-                                mode : 'server', 
-                                model: this.hal[attributeName].model,
-                                
-                                // WARNING: This is very important to force Backbone to call the Hal.Model.parse method 
-                                //          on embedded resources too. 
-                                parse : true
-                            }
-                        );
-    
-                    } 
-                    
-                    // Otherwise we use a default configuration
-                    else {
-                    
-                        halObject = new Backbone.Collection(
-                            resource, 
-                            { 
-                                mode : 'server',
-                                model : Hal.Model,
-                                
-                                // WARNING: This is very important to force Backbone to call the Hal.Model.parse method 
-                                //          on embedded resources too.
-                                parse : true
-                            }
-                        );
-    
-                    }
-                        
-                } 
-                
-                // Otherwise the attached embedded resource is a simple model
-                else {
-    
-                    halObject = new Hal.Model(resource, { parse : true });
-                    
-                }
-                
-                parsed._embedded.set(attributeName, halObject);
-                this.set(attributeName, halObject);
-                
-            }, 
-            this
-        );
-        
-        // Parse the links
-        parsed._links = new Hal.Model();
-        _.map(
-            resp._links, 
-            function(link, linkName) {
-                
-                parsed._links.set(linkName, new Hal.Link(link));
-    
-            },
-            this
-        );
-        
-        return parsed;
-    
-    };
-    
-    Hal.Model.prototype.toJSON = function(options) {
-        
-        // Create a response without the '_links' and '_embedded' properties
-        var object = _.omit(this.attributes, '_links', '_embedded'),
-            halObject = {};
-            
-        halObject._embedded = {};
-        halObject._links = {};
-        
-        _.each(object, function(value, key) {
-           
-            if(_.isArray(value)) {
-                
-                halObject[key] = [];
-                
-                _.each(value, function(value, index) {
-                  
-                    if(_.isObject(value) && value instanceof Backbone.Collection) {
-                        
-                        halObject[key].push(value.toJSON());
-                        
-                    }
-                    
-                    else {
-                        
-                        halObject[key] = value;
-                        
-                    }
-                    
-                });
-                
-            }
-            
-            else if(_.isObject(value)) {
-                
-                if(value instanceof Backbone.Model || value instanceof Backbone.Collection) {
-                    
-                    halObject[key] = value.toJSON();
-                    
-                } 
-                
-            }
-            
-            else {
-                
-                halObject[key] = value;
-                
-            }
-            
-        });
-        
-        if(_.has(this.attributes, '_embedded')) {
-        
-            var _embedded = this.attributes._embedded;
-            
-            _.each(_embedded.attributes, function(value, key) {
-               
-                if(value instanceof Backbone.Model || value instanceof Backbone.Collection) {
-                    halObject._embedded[key] = value.toJSON();
-                }
-                
-            });
-            
-        }
-        
-        if(_.has(this.attributes, '_links')) {
-        
-            var _links = this.attributes._links;
-            
-            _.each(_links.attributes, function(value, key) {
-               
-                if(value instanceof Backbone.Model) {
-                    halObject._links[key] = {
-                        href : value.get('href')
-                    };
-                }
-                
-            });
-            
-        }
-        
-        return halObject;        
-    };
     /**
      * Specialized Hal Collection.
      * 
