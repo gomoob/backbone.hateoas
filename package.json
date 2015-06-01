@@ -1,7 +1,7 @@
 {
   "name": "backbone.hateoas",
   "description": "Easy use of HAL in your Backbone application.",
-  "version": "0.1.0-alpha1",
+  "version": "0.1.0-alpha2",
   "homepage": "https://github.com/gomoob/backbone.hateoas",
   "author": {
     "name": "GoMoob",
