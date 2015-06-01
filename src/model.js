@@ -15,6 +15,30 @@
  */ 
 Hal.Model = Backbone.Model.extend({
 
+    /**
+     * Function used to initialize the HAL model.
+     * 
+     * @param {Object} options Options used to initialize the HAL model.
+     */
+    initialize : function(options) {
+    
+        // If options are provided
+        if(options) {
+            
+            // Initialize '_links'
+            if(options._links) {
+                
+                this.set('_links', new Hal.Links(options._links));
+                
+            }
+            
+            // Initialize '_embedded'
+            // TODO:
+            
+        }
+        
+    },
+    
     getEmbedded : function(rel) {
 
         return this.get('_embedded').get(rel);
@@ -109,16 +133,7 @@ Hal.Model = Backbone.Model.extend({
         );
         
         // Parse the links
-        parsed._links = new Hal.Model();
-        _.map(
-            resp._links, 
-            function(link, linkName) {
-                
-                parsed._links.set(linkName, new Hal.Link(link));
-
-            },
-            this
-        );
+        parsed._links = new Hal.Links(resp._links);
         
         return parsed;
 

@@ -37,7 +37,9 @@
      */
     var Hal = {};
 
-    // @include link.js
+    // @include link/link-array.js
+    // @include link/link.js
+    // @include link/links.js
     // @include model.js
     // @include collection.js
 

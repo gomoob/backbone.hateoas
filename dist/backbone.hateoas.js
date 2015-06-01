@@ -38,6 +38,20 @@
     var Hal = {};
 
     /**
+     * Backbone collection which represents a set of HAL Links.
+     * 
+     * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+     */
+    Hal.LinkArray = Backbone.Collection.extend(
+        {
+            isArray : function() {
+    
+                return true;
+    
+            }
+        }
+    );
+    /**
      * Backbone model which represents a HAL Link.
      * 
      * > A Link Object represents a hyperlink from the containing resource to a URI.
@@ -207,6 +221,12 @@
                 
             },
             
+            isArray : function() {
+    
+                return false;
+    
+            },
+    
             /**
              * Gets the `templated` property, the `templated` property is OPTIONAL.
              * 
@@ -362,6 +382,52 @@
         }
     );
     /**
+     * Backbone model which represents a set of HAL Link.
+     * 
+     * > A Link Object represents a hyperlink from the containing resource to a URI.
+     * 
+     * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+     * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5
+     */
+    Hal.Links = Backbone.Model.extend(
+        {
+            /**
+             * Function used to initialize the links.
+             * 
+             * @param {Object} options Options used to initialize the links.
+             */
+            initialize : function(options) {
+    
+                _.map(
+                    options, 
+                    function(link, rel) {
+    
+                        if(_.isArray(link)) {
+    
+                            var c = new Hal.LinkArray();
+                            _.each(link, function(l) {
+    
+                                c.add(new Hal.Link(l));
+                                
+                            });
+    
+                            this.set(rel, c);
+    
+                        } else {
+                            
+                            this.set(rel, new Hal.Link(link));
+                            
+                        }
+    
+                    },
+                    this
+                );
+    
+            }     
+        }
+    );
+    
+    /**
      * Backbone model which represents an HAL Model, an HAL Model is a Backbone Model with additional '_embedded' and 
      * '_links' properties.
      * 
@@ -378,6 +444,30 @@
      */ 
     Hal.Model = Backbone.Model.extend({
     
+        /**
+         * Function used to initialize the HAL model.
+         * 
+         * @param {Object} options Options used to initialize the HAL model.
+         */
+        initialize : function(options) {
+        
+            // If options are provided
+            if(options) {
+                
+                // Initialize '_links'
+                if(options._links) {
+                    
+                    this.set('_links', new Hal.Links(options._links));
+                    
+                }
+                
+                // Initialize '_embedded'
+                // TODO:
+                
+            }
+            
+        },
+        
         getEmbedded : function(rel) {
     
             return this.get('_embedded').get(rel);
@@ -472,16 +562,7 @@
             );
             
             // Parse the links
-            parsed._links = new Hal.Model();
-            _.map(
-                resp._links, 
-                function(link, linkName) {
-                    
-                    parsed._links.set(linkName, new Hal.Link(link));
-    
-                },
-                this
-            );
+            parsed._links = new Hal.Links(resp._links);
             
             return parsed;
     

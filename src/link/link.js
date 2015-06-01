@@ -168,6 +168,12 @@ Hal.Link = Backbone.Model.extend(
             
         },
         
+        isArray : function() {
+
+            return false;
+
+        },
+
         /**
          * Gets the `templated` property, the `templated` property is OPTIONAL.
          * 
