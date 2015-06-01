@@ -1,4 +1,4 @@
-/**
+/** 
  * Backbone model which represents an HAL Model, an HAL Model is a Backbone Model with additional '_embedded' and 
  * '_links' properties.
  * 
@@ -15,6 +15,10 @@
  */ 
 Hal.Model = Backbone.Model.extend({
 
+    _links : null,
+    
+    _embedded : null,
+    
     /**
      * Function used to initialize the HAL model.
      * 
@@ -22,26 +26,27 @@ Hal.Model = Backbone.Model.extend({
      */
     initialize : function(options) {
     
-        // If options are provided
-        if(options) {
-            
-            // Initialize '_links'
-            if(options._links) {
-                
-                this.set('_links', new Hal.Links(options._links));
-                
-            }
-            
-            // Initialize '_embedded'
-            // TODO:
-            
-        }
+        var _options = options || {};
         
+        // Initialize '_links'
+        this._links = new Hal.Links(_options._links);
+
+        // Initialize '_embedded'
+        this._embedded = new Hal.Embedded(_options._embedded, this.embedded);
+
     },
     
     getEmbedded : function(rel) {
 
-        return this.get('_embedded').get(rel);
+        var ret = this._embedded;
+
+        if(_.isString(rel)) {
+           
+            ret = ret.get(rel);
+            
+        }
+        
+        return ret;
 
     },
 
@@ -54,7 +59,7 @@ Hal.Model = Backbone.Model.extend({
      */
     getLink : function(rel) {
 
-        return this.get('_links').get(rel);
+        return this.getLinks().get(rel);
 
     }, 
 
@@ -65,183 +70,57 @@ Hal.Model = Backbone.Model.extend({
      */
     getLinks : function() {
 
-        return this.get('_links');
+        return this._links;
 
     },
-    
-    parse : function(resp, options) {
 
-        // Create a response without the '_links' and '_embedded' properties
-        var parsed = _.omit(resp, '_links', '_embedded');
-
-        // HTTP PATCH with no content is allowed.
-        if(options.patch && _.size(parsed) === 0) {
-
-            return parsed;
-            
-        }
+    toJSON : function() {
         
-        // Parse the embedded resources
-        parsed._embedded = new Hal.Model();
-        _.map(
-            resp._embedded,
-            function(resource, attributeName) {
-
-                var halObject = null;
-                
-                // If the '_embedded' resource is an array this is a potential Hal Collection
-                if(_.isArray(resource)) {
-                    
-                    // If the current model class defines a specific configuration for the attached embedded resource
-                    if(this.hal && this.hal[attributeName]) {
-                        
-                        var CollectionClass = this.hal[attributeName].type;
-                        
-                        halObject = new CollectionClass(
-                            resource, 
-                            {
-                                mode : 'server', 
-                                model: this.hal[attributeName].model,
-                                
-                                // WARNING: This is very important to force Backbone to call the Hal.Model.parse method 
-                                //          on embedded resources too. 
-                                parse : true
-                            }
-                        );
-
-                    } 
-                    
-                    // Otherwise we use a default configuration
-                    else {
-                    
-                        halObject = new Backbone.Collection(
-                            resource, 
-                            { 
-                                mode : 'server',
-                                model : Hal.Model,
-                                
-                                // WARNING: This is very important to force Backbone to call the Hal.Model.parse method 
-                                //          on embedded resources too.
-                                parse : true
-                            }
-                        );
-
-                    }
-                        
-                } 
-                
-                // Otherwise the attached embedded resource is a simple model
-                else {
-
-                    halObject = new Hal.Model(resource, { parse : true });
-                    
-                }
-                
-                parsed._embedded.set(attributeName, halObject);
-                this.set(attributeName, halObject);
-                
-            }, 
-            this
-        );
+        var noLinks = _.isEmpty(this.getLinks().attributes), 
+            noEmbedded = _.isEmpty(this.getEmbedded().attributes), 
+            cloned = null;
         
-        // Parse the links
-        parsed._links = new Hal.Links(resp._links);
-        
-        return parsed;
-
-    },
-    
-    toJSON : function(options) {
-
-        // Create a response without the '_links' and '_embedded' properties
-        var object = _.omit(this.attributes, '_links', '_embedded'),
-            halObject = {};
+        if(noLinks && noEmbedded) {
             
-        halObject._embedded = {};
-        halObject._links = {};
-        
-        _.each(object, function(value, key) {
-           
-            if(_.isArray(value)) {
-                
-                halObject[key] = [];
-                
-                _.each(value, function(value, index) {
-                  
-                    if(_.isObject(value) && value instanceof Backbone.Collection) {
-                        
-                        halObject[key].push(value.toJSON());
-                        
-                    }
-                    
-                    else {
-                        
-                        halObject[key] = value;
-                        
-                    }
-                    
-                });
-                
-            }
+            cloned = _.clone(_.omit(this.attributes, '_links', '_embedded'));
             
-            else if(_.isObject(value)) {
-                
-                if(value instanceof Backbone.Model || value instanceof Backbone.Collection) {
-                    
-                    halObject[key] = value.toJSON();
-                    
-                } 
-                
-            }
+        } else if(noLinks) {
             
-            else {
-                
-                halObject[key] = value;
-                
-            }
+            cloned = _.clone(_.omit(this.attributes, '_links'));
             
-        });
-        
-        if(_.has(this.attributes, '_embedded')) {
-        
-            var _embedded = this.attributes._embedded;
+        } else if(noEmbedded) {
             
-            _.each(_embedded.attributes, function(value, key) {
-               
-                if(value instanceof Backbone.Model || value instanceof Backbone.Collection) {
-                    halObject._embedded[key] = value.toJSON();
-                }
-                
-            });
-            
-        }
-        
-        if(_.has(this.attributes, '_links')) {
-        
-            var _links = this.attributes._links;
-            
-            _.each(_links.attributes, function(value, key) {
-               
-                if(value instanceof Backbone.Model) {
-                    halObject._links[key] = {
-                        href : value.get('href')
-                    };
-                }
-                
-            });
-            
-        }
-        
-        return halObject;        
-    },
-    
-    url : function() {
-        
-        if(this.get('_links') && this.get('_links').get('self') && this.get('_links').get('self').get('href')) {
-            
-            return this.get('_links').get('self').get('href');
+            cloned = _.clone(_.omit(this.attributes, '_embedded'));
             
         } else {
+            
+            cloned = _.clone(this.attributes);
+            
+        }
+        
+        return cloned;
+
+    },
+    
+    /**
+     * Returns the URL where the model's resource is located on the server, this method has the same behavior as the 
+     * Backbone one except it will use the value of the `self` link if a `self` link exists. 
+     * 
+     * If no `self` link exists this function will have the same behavior as the Backbone url method.
+     * 
+     * @return {String} The URL where the model's resource is located on the server.
+     */
+    url : function() {
+
+        // If the HAL Resource has a 'self' link we use it
+        if(this.getLinks().hasSelf()) {
+
+            return this.getLinks().getSelf();
+
+        } 
+        
+        // Otherwise we use the Backbone.Model.url() method
+        else {
 
             return Backbone.Model.prototype.url.call(this);
 

@@ -36,387 +36,477 @@
      * @namespace Hal
      */
     var Hal = {};
-
-    (function() {
-        
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // PRIVATE MEMBERS
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /**
-         * Boolean used to contain the 'templated' property really provided.
-         * 
-         * @var {Boolean}
-         */
-        _templated = undefined;
     
-        /**
-         * Backbone model which represents a HAL Link.
-         * 
-         * > A Link Object represents a hyperlink from the containing resource to a URI.
-         * 
-         * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
-         * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5
-         */
-        Hal.Link = Backbone.Model.extend(
-            {
-                // TODO: Il serait bien que le 'href' soit un objet avec des fonction utilitaires très pratiques, par 
-                //       exemple pour récupérer le dernier fragment d'URL et le convertir en int automatiquement, etc...
-                // TODO: Il serait top d'avoir une fonction pour construire un model du bon type avec fonction du lien, peut 
-                //       être que cette contruction serait basée sur une configuration 'hal._links.myLink' dans l'objet
+    /**
+     * Backbone model which represents a set of embedded resources.
+     * 
+     * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+     * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-4.1.2
+     */
+    Hal.Embedded = Backbone.Model.extend(
+        {
+            /**
+             * Function used to initialize the links.
+             * 
+             * @param {Object} options Options used to initialize the links.
+             * @param {Object} embedded An object which maps HAL relation types to model classes the `_embedded` contains, 
+             *        the purpose of this property is the same as the Backbone.Collection `model` property except it defines 
+             *        a model class for each embedded resource.
+             */
+            initialize : function(attributes, options) {
     
-                /**
-                 * Function used to create a new Hal.Model object using the link. The created model has only one attribute 
-                 * which is the identifier.
-                 * 
-                 * @return {Hal.Model} The new created Hal Model.
-                 */
-                createModel : function() {
+                _.map(
+                    attributes, 
+                    function(embeddedResource, rel) {
     
-                    return new Hal.Model({id : parseInt(this.get('href').split('/').pop(), 10)});
+                        var halResource = null;
+                        
+                        // If 'embedded' is provided then we try to find a specified model or collection class
+                        if(this.embedded) {
     
-                },
+                            // The embedded resource is created using a function
+                            if(_.isFunction(this.embedded[rel])) {
     
-                /**
-                 * Function used to build / initilize / construct a HAL link.
-                 * 
-                 * @param {Object} options Options used to initilize the HAL link.
-                 * @param {URI | URITemplate} options.href The `href` property, the `href` property is REQUIRED. 
-                 *        Its value is either a URI [RFC3986](https://tools.ietf.org/html/rfc3986 "RFC3986") or a URI 
-                 *        Template [RFC6570](https://tools.ietf.org/html/rfc6570 "RFC6570").
-                 *        
-                 *        If the value is a URI Template then the Link Object SHOULD have a `templated` attribute whose 
-                 *        value is true.
-                 */
-                initialize : function(options) {
-                
-                    // The "href" property is mandatory
-                    if(!_.isObject(options) || !_.isString(options.href)) {
+                                halResource = this.embedded[rel](rel, embeddedResource, options);
     
-                        throw new Error('Missing required property "href" !');
+                            } 
+                            
+                            // The embedded resource is created using an Hal Collection
+                            else if(this.embedded[rel] instanceof Hal.Collection) {
+                                
+                                halResource = new Hal.Collection(embeddedResource);
+                                
+                            } 
+                            
+                            // The embedded resource is created using an Hal Model
+                            else if(this.embedded[rel] instanceof Hal.Model) {
+                                
+                                halResource = new Hal.Model(embeddedResource);
     
-                    }
+                            } 
+                            
+                            // Otherwise this is an error
+                            else {
+                                
+                                throw new Error(
+                                    'Invalid embedded model or collection class provided for \'rel\'=\'' + rel + '\' !'
+                                ); 
     
-                    // The "templated" property can only be false or true
-                    _templated = this.get('templated');
-                    this.attributes.templated = _templated === true;
-                    
-                    this.on('change:templated', function(model, value, options) {
+                            }
     
-                        _templated = value;
+                        } 
+                        
+                        // Otherwise if the '_embedded' resource is an array we consider it to be an Hal Collection
+                        else if(_.isArray(embeddedResource)) {
     
-                    });
+                            halResource = new Hal.Collection(
+                                embeddedResource, 
+                                { 
+                                    mode : 'server',
+                                    model : Hal.Model
+                                }
+                            );
+                            halResource.rel = rel;
+                            
+                        } 
+                        
+                        // Otherwise of the '_embedded' resourec is an object we consider it to be an Hal Model
+                        else if(_.isObject(embeddedResource)) {
     
-                },
+                            halResource = new Hal.Model(embeddedResource);
+                            
+                        } 
+                        
+                        // Otherwise this is an error
+                        else {
     
-                /**
-                 * Gets the `deprecation` property, the `deprecation` property is OPTIONAL.
-                 * 
-                 * Its presence indicates that the link is to be deprecated (i.e. removed) at a future date.  Its value is a 
-                 * URL that SHOULD provide further information about the deprecation.
-                 * 
-                 * A client SHOULD provide some notification (for example, by logging a warning message) whenever it 
-                 * traverses over a link that has this property.  The notification SHOULD include the deprecation property's 
-                 * value so that a client manitainer can easily find information about the deprecation.
-                 * 
-                 * @return {URL} The value of the `deprecation` property. 
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.4
-                 */
-                getDeprecation : function() {
-                  
-                    return this.get('deprecation');
-                    
-                },
-                
-                /**
-                 * Gets the `name` property, the `name` property is OPTIONNAL.
-                 * 
-                 * Its value MAY be used as a secondary key for selecting Link Objects which share the same relation type.
-                 * 
-                 * @return {String} The value of the `name` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.5
-                 */
-                getName : function() {
-                  
-                    return this.get('name');
-                    
-                },
+                            throw new Error('Invalid embedded resource identified by \'rel\'=\'' + rel + '\' !');    
     
-                /**
-                 * Gets the `href` property, the `href` property is REQUIRED.
-                 * 
-                 * Its value is either a URI [RFC3986](https://tools.ietf.org/html/rfc3986 "RFC3986") or a URI Template 
-                 * [RFC6570](https://tools.ietf.org/html/rfc6570 "RFC6570").
-                 * 
-                 * If the value is a URI Template then the Link Object SHOULD have a `templated` attribute whose value is 
-                 * true.
-                 * 
-                 * @return {URI | URITemplate} The value of the `href` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.1
-                 */
-                getHref : function() {
+                        }
     
-                    return this.get('href');
+                        this.set(rel, halResource);
     
-                },
+                    },
+                    this
+                );
     
-                /**
-                 * Gets the `hreflang` property, the `hreflang` property is OPTIONAL.
-                 * 
-                 * Its value is a string and is intended for indicating the language of the target resource (as defined by 
-                 * [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
-                 * 
-                 * @return {String} The value of the `hreflang` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.8
-                 */
-                getHreflang : function() {
-                  
-                    return this.get('hreflang');
-                    
-                },
-                
-                /**
-                 * Gets the `profile` property, the `profile` property is OPTIONAL.
-                 * 
-                 * Its value is a string which is a URI that hints about the profile (as defined by [I-D.wilde-profile-link]
-                 * (https://tools.ietf.org/html/draft-kelly-json-hal-06#ref-I-D.wilde-profile-link "I-D.wilde-profile-link"
-                 * )) of the target resource.
-                 * 
-                 * @return {URI} The value of the `profile` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.6
-                 */
-                getProfile : function() {
-                  
-                    return this.get('profile');
-                    
-                },
-                
-                /**
-                 * Gets the `title` property, the `title` property is OPTIONAL.
-                 * 
-                 * Its value is a string and is intended for labelling the link with a human-readable identifier (as defined 
-                 * by [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
-                 * 
-                 * @return {String} The value of the `title` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.7
-                 */
-                getTitle : function() {
-                  
-                    return this.get('title');
-                    
-                },
-                
-                /**
-                 * Gets the `type` property, the `type` property is OPTIONAL.
-                 * 
-                 * Its value is a string used as a hint to indicate the media type expected when dereferencing the target 
-                 * resource.
-                 * 
-                 * @return {String} The value of the `type` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.3
-                 */
-                getType : function() {
-                  
-                    return this.get('type');
-                    
-                },
-                
-                /**
-                 * Utility function used to indicate if this link is an HAL Link Array.
-                 * 
-                 * @return {Boolean} Always false here because this link a simple link.
-                 */
-                isArray : function() {
+            }
+        }
+    );
     
-                    return false;
+    /**
+     * Backbone model which represents a HAL Link.
+     * 
+     * > A Link Object represents a hyperlink from the containing resource to a URI.
+     * 
+     * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+     * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5
+     */
+    Hal.Link = Backbone.Model.extend(
+        {
+            /**
+             * Boolean used to contain the 'templated' property really provided.
+             * 
+             * @var {Boolean}
+             */
+            _templated : undefined,
+            
+            // TODO: Il serait bien que le 'href' soit un objet avec des fonction utilitaires très pratiques, par 
+            //       exemple pour récupérer le dernier fragment d'URL et le convertir en int automatiquement, etc...
+            // TODO: Il serait top d'avoir une fonction pour construire un model du bon type avec fonction du lien, peut 
+            //       être que cette contruction serait basée sur une configuration 'hal._links.myLink' dans l'objet
     
-                },
+            /**
+             * Function used to create a new Hal.Model object using the link. The created model has only one attribute 
+             * which is the identifier.
+             * 
+             * @return {Hal.Model} The new created Hal Model.
+             */
+            createModel : function() {
     
-                /**
-                 * Gets the `templated` property, the `templated` property is OPTIONAL.
-                 * 
-                 * Its value is boolean and SHOULD be true when the Link Object's "href" property is a URI Template.
-                 * 
-                 * Its value SHOULD be considered false if it is undefined or any other value than true.
-                 * 
-                 * @return {Boolean} The value of the `templated` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.2
-                 */
-                isTemplated : function() {
+                return new Hal.Model({id : parseInt(this.get('href').split('/').pop(), 10)});
     
-                    return this.get('templated');
+            },
     
-                },
+            /**
+             * Function used to build / initilize / construct a HAL link.
+             * 
+             * @param {Object} options Options used to initilize the HAL link.
+             * @param {URI | URITemplate} options.href The `href` property, the `href` property is REQUIRED. 
+             *        Its value is either a URI [RFC3986](https://tools.ietf.org/html/rfc3986 "RFC3986") or a URI 
+             *        Template [RFC6570](https://tools.ietf.org/html/rfc6570 "RFC6570").
+             *        
+             *        If the value is a URI Template then the Link Object SHOULD have a `templated` attribute whose 
+             *        value is true.
+             */
+            initialize : function(options) {
+            
+                // The "href" property is mandatory
+                if(!_.isObject(options) || !_.isString(options.href)) {
     
-                /**
-                 * Sets the `deprecation` property, the `deprecation` property is OPTIONAL.
-                 * 
-                 * Its presence indicates that the link is to be deprecated (i.e. removed) at a future date.  Its value is a 
-                 * URL that SHOULD provide further information about the deprecation.
-                 * 
-                 * A client SHOULD provide some notification (for example, by logging a warning message) whenever it 
-                 * traverses over a link that has this property.  The notification SHOULD include the deprecation property's 
-                 * value so that a client manitainer can easily find information about the deprecation.
-                 * 
-                 * @param {URL} deprecation The value of the `deprecation` property. 
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.4
-                 */
-                setDeprecation : function(deprecation) {
-                  
-                    this.set('deprecation', deprecation);
-                    
-                },
-                
-                /**
-                 * Sets the `href` property, the `href` property is REQUIRED.
-                 * 
-                 * Its value is either a URI [RFC3986](https://tools.ietf.org/html/rfc3986 "RFC3986") or a URI Template 
-                 * [RFC6570](https://tools.ietf.org/html/rfc6570 "RFC6570").
-                 * 
-                 * If the value is a URI Template then the Link Object SHOULD have a `templated` attribute whose value is 
-                 * true.
-                 * 
-                 * @param {URI | URITemplate} href The value of the `href` property to set.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.1
-                 */
-                setHref : function(href) {
+                    throw new Error('Missing required property "href" !');
     
-                    this.set('href', href);
-    
-                },
-                
-                /**
-                 * Sets the `hreflang` property, the `hreflang` property is OPTIONAL.
-                 * 
-                 * Its value is a string and is intended for indicating the language of the target resource (as defined by 
-                 * [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
-                 * 
-                 * @param {String} hreflang The value of the `hreflang` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.8
-                 */
-                setHreflang : function(hreflang) {
-                  
-                    this.set('hreflang', hreflang);
-                    
-                },
-                
-                /**
-                 * Gets the `name` property, the `name` property is OPTIONNAL.
-                 * 
-                 * Its value MAY be used as a secondary key for selecting Link Objects which share the same relation type.
-                 * 
-                 * @param {String} name The value of the `name` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.5
-                 */
-                setName : function(name) {
-                  
-                    this.set('name', name);
-                    
-                },
-                
-                /**
-                 * Sets the `profile` property, the `profile` property is OPTIONAL.
-                 * 
-                 * Its value is a string which is a URI that hints about the profile (as defined by [I-D.wilde-profile-link]
-                 * (https://tools.ietf.org/html/draft-kelly-json-hal-06#ref-I-D.wilde-profile-link "I-D.wilde-profile-link"
-                 * )) of the target resource.
-                 * 
-                 * @param {URI} profile The value of the `profile` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.6
-                 */
-                setProfile : function(profile) {
-                  
-                    this.set('profile', profile);
-                    
-                },
-                
-                /**
-                 * Sets the `templated` property, the `templated` property is OPTIONAL.
-                 * 
-                 * Its value is boolean and SHOULD be true when the Link Object's "href" property is a URI Template.
-                 * 
-                 * Its value SHOULD be considered false if it is undefined or any other value than true.
-                 * 
-                 * @param {Boolean} templated The value of the `templated` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.2
-                 */
-                setTemplated : function(templated) {
-                    
-                    this.set('templated', templated);
-                    
-                },
-                
-                /**
-                 * Sets the `title` property, the `title` property is OPTIONAL.
-                 * 
-                 * Its value is a string and is intended for labelling the link with a human-readable identifier (as defined 
-                 * by [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
-                 * 
-                 * @param {String} title The value of the `title` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.7
-                 */
-                setTitle : function(title) {
-                  
-                    this.set('title', title);
-                    
-                },
-                
-                /**
-                 * Sets the `type` property, the `type` property is OPTIONAL.
-                 * 
-                 * Its value is a string used as a hint to indicate the media type expected when dereferencing the target 
-                 * resource.
-                 * 
-                 * @param {String} type The value of the `type` property.
-                 * 
-                 * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.3
-                 */
-                setType : function(type) {
-                    
-                    this.set('type', type);
-                    
-                },
-                
-                /**
-                 * Return a shallow copy of the model's attributes for JSON stringification. This can be used for 
-                 * persistence, serialization, or for augmentation before being sent to the server. The name of this method 
-                 * is a bit confusing, as it doesn't actually return a JSON string — but I'm afraid that it's the way that 
-                 * the JavaScript API for JSON.stringify works.
-                 * 
-                 * @return {Object} A Javascript object which represents a JSON representation of this link.
-                 */
-                toJSON : function() {
-    
-                    // If initially no 'templated' property was defined then we remove it from the attributes
-                    if(_.isUndefined(_templated)) {
-    
-                        delete this.attributes.templated;
-    
-                    }
-    
-                    // Calls the parent Backbone toJSON method
-                    return Backbone.Model.prototype.toJSON.apply(this);
-                    
                 }
+    
+                // The "templated" property can only be false or true
+                this._templated = this.get('templated');
+                this.attributes.templated = this._templated === true;
+                
+                this.on('change:templated', function(model, value, options) {
+    
+                    this._templated = value;
+    
+                }, this);
+    
+            },
+    
+            /**
+             * Gets the `deprecation` property, the `deprecation` property is OPTIONAL.
+             * 
+             * Its presence indicates that the link is to be deprecated (i.e. removed) at a future date.  Its value is a 
+             * URL that SHOULD provide further information about the deprecation.
+             * 
+             * A client SHOULD provide some notification (for example, by logging a warning message) whenever it 
+             * traverses over a link that has this property.  The notification SHOULD include the deprecation property's 
+             * value so that a client manitainer can easily find information about the deprecation.
+             * 
+             * @return {URL} The value of the `deprecation` property. 
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.4
+             */
+            getDeprecation : function() {
+              
+                return this.get('deprecation');
+                
+            },
+            
+            /**
+             * Gets the `name` property, the `name` property is OPTIONNAL.
+             * 
+             * Its value MAY be used as a secondary key for selecting Link Objects which share the same relation type.
+             * 
+             * @return {String} The value of the `name` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.5
+             */
+            getName : function() {
+              
+                return this.get('name');
+                
+            },
+    
+            /**
+             * Gets the `href` property, the `href` property is REQUIRED.
+             * 
+             * Its value is either a URI [RFC3986](https://tools.ietf.org/html/rfc3986 "RFC3986") or a URI Template 
+             * [RFC6570](https://tools.ietf.org/html/rfc6570 "RFC6570").
+             * 
+             * If the value is a URI Template then the Link Object SHOULD have a `templated` attribute whose value is 
+             * true.
+             * 
+             * @return {URI | URITemplate} The value of the `href` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.1
+             */
+            getHref : function() {
+    
+                return this.get('href');
+    
+            },
+    
+            /**
+             * Gets the `hreflang` property, the `hreflang` property is OPTIONAL.
+             * 
+             * Its value is a string and is intended for indicating the language of the target resource (as defined by 
+             * [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
+             * 
+             * @return {String} The value of the `hreflang` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.8
+             */
+            getHreflang : function() {
+              
+                return this.get('hreflang');
+                
+            },
+            
+            /**
+             * Gets the `profile` property, the `profile` property is OPTIONAL.
+             * 
+             * Its value is a string which is a URI that hints about the profile (as defined by [I-D.wilde-profile-link]
+             * (https://tools.ietf.org/html/draft-kelly-json-hal-06#ref-I-D.wilde-profile-link "I-D.wilde-profile-link"
+             * )) of the target resource.
+             * 
+             * @return {URI} The value of the `profile` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.6
+             */
+            getProfile : function() {
+              
+                return this.get('profile');
+                
+            },
+            
+            /**
+             * Gets the `title` property, the `title` property is OPTIONAL.
+             * 
+             * Its value is a string and is intended for labelling the link with a human-readable identifier (as defined 
+             * by [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
+             * 
+             * @return {String} The value of the `title` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.7
+             */
+            getTitle : function() {
+              
+                return this.get('title');
+                
+            },
+            
+            /**
+             * Gets the `type` property, the `type` property is OPTIONAL.
+             * 
+             * Its value is a string used as a hint to indicate the media type expected when dereferencing the target 
+             * resource.
+             * 
+             * @return {String} The value of the `type` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.3
+             */
+            getType : function() {
+              
+                return this.get('type');
+                
+            },
+            
+            /**
+             * Utility function used to indicate if this link is an HAL Link Array.
+             * 
+             * @return {Boolean} Always false here because this link a simple link.
+             */
+            isArray : function() {
+    
+                return false;
+    
+            },
+    
+            /**
+             * Gets the `templated` property, the `templated` property is OPTIONAL.
+             * 
+             * Its value is boolean and SHOULD be true when the Link Object's "href" property is a URI Template.
+             * 
+             * Its value SHOULD be considered false if it is undefined or any other value than true.
+             * 
+             * @return {Boolean} The value of the `templated` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.2
+             */
+            isTemplated : function() {
+    
+                return this.get('templated');
+    
+            },
+    
+            /**
+             * Sets the `deprecation` property, the `deprecation` property is OPTIONAL.
+             * 
+             * Its presence indicates that the link is to be deprecated (i.e. removed) at a future date.  Its value is a 
+             * URL that SHOULD provide further information about the deprecation.
+             * 
+             * A client SHOULD provide some notification (for example, by logging a warning message) whenever it 
+             * traverses over a link that has this property.  The notification SHOULD include the deprecation property's 
+             * value so that a client manitainer can easily find information about the deprecation.
+             * 
+             * @param {URL} deprecation The value of the `deprecation` property. 
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.4
+             */
+            setDeprecation : function(deprecation) {
+              
+                this.set('deprecation', deprecation);
+                
+            },
+            
+            /**
+             * Sets the `href` property, the `href` property is REQUIRED.
+             * 
+             * Its value is either a URI [RFC3986](https://tools.ietf.org/html/rfc3986 "RFC3986") or a URI Template 
+             * [RFC6570](https://tools.ietf.org/html/rfc6570 "RFC6570").
+             * 
+             * If the value is a URI Template then the Link Object SHOULD have a `templated` attribute whose value is 
+             * true.
+             * 
+             * @param {URI | URITemplate} href The value of the `href` property to set.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.1
+             */
+            setHref : function(href) {
+    
+                this.set('href', href);
+    
+            },
+            
+            /**
+             * Sets the `hreflang` property, the `hreflang` property is OPTIONAL.
+             * 
+             * Its value is a string and is intended for indicating the language of the target resource (as defined by 
+             * [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
+             * 
+             * @param {String} hreflang The value of the `hreflang` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.8
+             */
+            setHreflang : function(hreflang) {
+              
+                this.set('hreflang', hreflang);
+                
+            },
+            
+            /**
+             * Gets the `name` property, the `name` property is OPTIONNAL.
+             * 
+             * Its value MAY be used as a secondary key for selecting Link Objects which share the same relation type.
+             * 
+             * @param {String} name The value of the `name` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.5
+             */
+            setName : function(name) {
+              
+                this.set('name', name);
+                
+            },
+            
+            /**
+             * Sets the `profile` property, the `profile` property is OPTIONAL.
+             * 
+             * Its value is a string which is a URI that hints about the profile (as defined by [I-D.wilde-profile-link]
+             * (https://tools.ietf.org/html/draft-kelly-json-hal-06#ref-I-D.wilde-profile-link "I-D.wilde-profile-link"
+             * )) of the target resource.
+             * 
+             * @param {URI} profile The value of the `profile` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.6
+             */
+            setProfile : function(profile) {
+              
+                this.set('profile', profile);
+                
+            },
+            
+            /**
+             * Sets the `templated` property, the `templated` property is OPTIONAL.
+             * 
+             * Its value is boolean and SHOULD be true when the Link Object's "href" property is a URI Template.
+             * 
+             * Its value SHOULD be considered false if it is undefined or any other value than true.
+             * 
+             * @param {Boolean} templated The value of the `templated` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.2
+             */
+            setTemplated : function(templated) {
+                
+                this.set('templated', templated);
+                
+            },
+            
+            /**
+             * Sets the `title` property, the `title` property is OPTIONAL.
+             * 
+             * Its value is a string and is intended for labelling the link with a human-readable identifier (as defined 
+             * by [RFC5988](https://tools.ietf.org/html/rfc5988 "RFC5988")).
+             * 
+             * @param {String} title The value of the `title` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.7
+             */
+            setTitle : function(title) {
+              
+                this.set('title', title);
+                
+            },
+            
+            /**
+             * Sets the `type` property, the `type` property is OPTIONAL.
+             * 
+             * Its value is a string used as a hint to indicate the media type expected when dereferencing the target 
+             * resource.
+             * 
+             * @param {String} type The value of the `type` property.
+             * 
+             * @see https://tools.ietf.org/html/draft-kelly-json-hal-06#section-5.3
+             */
+            setType : function(type) {
+                
+                this.set('type', type);
+                
+            },
+            
+            /**
+             * Return a shallow copy of the model's attributes for JSON stringification. This can be used for 
+             * persistence, serialization, or for augmentation before being sent to the server. The name of this method 
+             * is a bit confusing, as it doesn't actually return a JSON string — but I'm afraid that it's the way that 
+             * the JavaScript API for JSON.stringify works.
+             * 
+             * @return {Object} A Javascript object which represents a JSON representation of this link.
+             */
+            toJSON : function() {
+    
+                // If initially no 'templated' property was defined then we remove it from the attributes
+                if(_.isUndefined(this._templated)) {
+    
+                    delete this.attributes.templated;
+    
+                }
+    
+                // Calls the parent Backbone toJSON method
+                return Backbone.Model.prototype.toJSON.apply(this);
                 
             }
-        );
-        
-    })();
+            
+        }
+    );
     
     /**
      * Backbone collection which represents a set of HAL Links.
@@ -491,11 +581,35 @@
                     this
                 );
     
-            }     
+            }, 
+            
+            /**
+             * Utility function used to get the `self` link.
+             * 
+             * @return {Hal.Link} The self link.
+             */
+            getSelf : function() {
+    
+                return this.get('self');
+    
+            },
+            
+            /**
+             * Function used to indicate if the `self` link is defined.
+             * 
+             * @return {Boolean} True if the self link is defined, false otherwise.
+             */
+            hasSelf : function() {
+    
+                var self = this.getSelf();
+                
+                return !(_.isNull(self) || _.isUndefined(self));
+    
+            }
         }
     );
     
-    /**
+    /** 
      * Backbone model which represents an HAL Model, an HAL Model is a Backbone Model with additional '_embedded' and 
      * '_links' properties.
      * 
@@ -512,6 +626,10 @@
      */ 
     Hal.Model = Backbone.Model.extend({
     
+        _links : null,
+        
+        _embedded : null,
+        
         /**
          * Function used to initialize the HAL model.
          * 
@@ -519,26 +637,27 @@
          */
         initialize : function(options) {
         
-            // If options are provided
-            if(options) {
-                
-                // Initialize '_links'
-                if(options._links) {
-                    
-                    this.set('_links', new Hal.Links(options._links));
-                    
-                }
-                
-                // Initialize '_embedded'
-                // TODO:
-                
-            }
+            var _options = options || {};
             
+            // Initialize '_links'
+            this._links = new Hal.Links(_options._links);
+    
+            // Initialize '_embedded'
+            this._embedded = new Hal.Embedded(_options._embedded, this.embedded);
+    
         },
         
         getEmbedded : function(rel) {
     
-            return this.get('_embedded').get(rel);
+            var ret = this._embedded;
+    
+            if(_.isString(rel)) {
+               
+                ret = ret.get(rel);
+                
+            }
+            
+            return ret;
     
         },
     
@@ -551,7 +670,7 @@
          */
         getLink : function(rel) {
     
-            return this.get('_links').get(rel);
+            return this.getLinks().get(rel);
     
         }, 
     
@@ -562,183 +681,57 @@
          */
         getLinks : function() {
     
-            return this.get('_links');
+            return this._links;
     
         },
-        
-        parse : function(resp, options) {
     
-            // Create a response without the '_links' and '_embedded' properties
-            var parsed = _.omit(resp, '_links', '_embedded');
-    
-            // HTTP PATCH with no content is allowed.
-            if(options.patch && _.size(parsed) === 0) {
-    
-                return parsed;
-                
-            }
+        toJSON : function() {
             
-            // Parse the embedded resources
-            parsed._embedded = new Hal.Model();
-            _.map(
-                resp._embedded,
-                function(resource, attributeName) {
-    
-                    var halObject = null;
-                    
-                    // If the '_embedded' resource is an array this is a potential Hal Collection
-                    if(_.isArray(resource)) {
-                        
-                        // If the current model class defines a specific configuration for the attached embedded resource
-                        if(this.hal && this.hal[attributeName]) {
-                            
-                            var CollectionClass = this.hal[attributeName].type;
-                            
-                            halObject = new CollectionClass(
-                                resource, 
-                                {
-                                    mode : 'server', 
-                                    model: this.hal[attributeName].model,
-                                    
-                                    // WARNING: This is very important to force Backbone to call the Hal.Model.parse method 
-                                    //          on embedded resources too. 
-                                    parse : true
-                                }
-                            );
-    
-                        } 
-                        
-                        // Otherwise we use a default configuration
-                        else {
-                        
-                            halObject = new Backbone.Collection(
-                                resource, 
-                                { 
-                                    mode : 'server',
-                                    model : Hal.Model,
-                                    
-                                    // WARNING: This is very important to force Backbone to call the Hal.Model.parse method 
-                                    //          on embedded resources too.
-                                    parse : true
-                                }
-                            );
-    
-                        }
-                            
-                    } 
-                    
-                    // Otherwise the attached embedded resource is a simple model
-                    else {
-    
-                        halObject = new Hal.Model(resource, { parse : true });
-                        
-                    }
-                    
-                    parsed._embedded.set(attributeName, halObject);
-                    this.set(attributeName, halObject);
-                    
-                }, 
-                this
-            );
+            var noLinks = _.isEmpty(this.getLinks().attributes), 
+                noEmbedded = _.isEmpty(this.getEmbedded().attributes), 
+                cloned = null;
             
-            // Parse the links
-            parsed._links = new Hal.Links(resp._links);
-            
-            return parsed;
-    
-        },
-        
-        toJSON : function(options) {
-    
-            // Create a response without the '_links' and '_embedded' properties
-            var object = _.omit(this.attributes, '_links', '_embedded'),
-                halObject = {};
+            if(noLinks && noEmbedded) {
                 
-            halObject._embedded = {};
-            halObject._links = {};
-            
-            _.each(object, function(value, key) {
-               
-                if(_.isArray(value)) {
-                    
-                    halObject[key] = [];
-                    
-                    _.each(value, function(value, index) {
-                      
-                        if(_.isObject(value) && value instanceof Backbone.Collection) {
-                            
-                            halObject[key].push(value.toJSON());
-                            
-                        }
-                        
-                        else {
-                            
-                            halObject[key] = value;
-                            
-                        }
-                        
-                    });
-                    
-                }
+                cloned = _.clone(_.omit(this.attributes, '_links', '_embedded'));
                 
-                else if(_.isObject(value)) {
-                    
-                    if(value instanceof Backbone.Model || value instanceof Backbone.Collection) {
-                        
-                        halObject[key] = value.toJSON();
-                        
-                    } 
-                    
-                }
+            } else if(noLinks) {
                 
-                else {
-                    
-                    halObject[key] = value;
-                    
-                }
+                cloned = _.clone(_.omit(this.attributes, '_links'));
                 
-            });
-            
-            if(_.has(this.attributes, '_embedded')) {
-            
-                var _embedded = this.attributes._embedded;
+            } else if(noEmbedded) {
                 
-                _.each(_embedded.attributes, function(value, key) {
-                   
-                    if(value instanceof Backbone.Model || value instanceof Backbone.Collection) {
-                        halObject._embedded[key] = value.toJSON();
-                    }
-                    
-                });
-                
-            }
-            
-            if(_.has(this.attributes, '_links')) {
-            
-                var _links = this.attributes._links;
-                
-                _.each(_links.attributes, function(value, key) {
-                   
-                    if(value instanceof Backbone.Model) {
-                        halObject._links[key] = {
-                            href : value.get('href')
-                        };
-                    }
-                    
-                });
-                
-            }
-            
-            return halObject;        
-        },
-        
-        url : function() {
-            
-            if(this.get('_links') && this.get('_links').get('self') && this.get('_links').get('self').get('href')) {
-                
-                return this.get('_links').get('self').get('href');
+                cloned = _.clone(_.omit(this.attributes, '_embedded'));
                 
             } else {
+                
+                cloned = _.clone(this.attributes);
+                
+            }
+            
+            return cloned;
+    
+        },
+        
+        /**
+         * Returns the URL where the model's resource is located on the server, this method has the same behavior as the 
+         * Backbone one except it will use the value of the `self` link if a `self` link exists. 
+         * 
+         * If no `self` link exists this function will have the same behavior as the Backbone url method.
+         * 
+         * @return {String} The URL where the model's resource is located on the server.
+         */
+        url : function() {
+    
+            // If the HAL Resource has a 'self' link we use it
+            if(this.getLinks().hasSelf()) {
+    
+                return this.getLinks().getSelf();
+    
+            } 
+            
+            // Otherwise we use the Backbone.Model.url() method
+            else {
     
                 return Backbone.Model.prototype.url.call(this);
     
@@ -748,152 +741,166 @@
     
     });
     
-    /**
-     * Specialized Hal Collection.
-     * 
-     * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
-     * @author Simon BAUDRY (simon.baudry@gomoob.com)
-     */
-    // TODO: Ceci pourrait peut-être enfin service à créer une Backbone.HalCollection puissant et fonctionnelle ? ...
-    Hal.Collection = Backbone.PageableCollection.extend(
-        {
-            // This is required to have access to a 'fullCollection' and to navigate inside the collection using the 
-            // 'prev', 'next' and 'last' links.
-            mode: 'infinite',
-            
-            model : Hal.Model,
-            
-            queryParams : {
-                currentPage : 'page',
-                pageSize : 'page_size',
-                totalPages : null,
-                totalRecords : null
-            },
-            state : {
-                firstPage : 1,
-                pageSize : 12
-            },
-            
-            parseLinks: function (resp, xhr) {
+    (function() {
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // PRIVATE MEMBERS
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+        function finiteInt (val, name) {
+            if (!_.isNumber(val) || _.isNaN(val) || !_.isFinite(val) || ~~val !== val) {
+              throw new TypeError("`" + name + "` must be a finite integer");
+            }
+            return val;
+          }
+    
+        /**
+         * Specialized Hal Collection.
+         * 
+         * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+         * @author Simon BAUDRY (simon.baudry@gomoob.com)
+         */
+        Hal.Collection = Backbone.PageableCollection.extend(
+            {
+                // This is required to have access to a 'fullCollection' and to navigate inside the collection using the 
+                // 'prev', 'next' and 'last' links.
+                mode: 'infinite',
                 
-                // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
-                if(!resp._links.first && this.mode === 'infinite' && resp.total_items !== 0) {
+                model : Hal.Model,
+                
+                queryParams : {
+                    currentPage : 'page',
+                    pageSize : 'page_size',
+                    totalPages : null,
+                    totalRecords : null
+                },
+                state : {
+                    firstPage : 1,
+                    pageSize : 12
+                },
+                
+                parseLinks: function (resp, xhr) {
                     
-                    throw new Error(
-                        'You are using the \'infinite\' mode and the server did not returned a \'first\' ' + 
-                        'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' + 
-                        'is well formed. If your collection is not paginated you could use the \'server\' mode instead.'
-                    );
+                    // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
+                    if(!resp._links.first && this.mode === 'infinite' && resp.total_items !== 0) {
+                        
+                        throw new Error(
+                            'You are using the \'infinite\' mode and the server did not returned a \'first\' ' + 
+                            'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' + 
+                            'is well formed. If your collection is not paginated you could use the \'server\' mode instead.'
+                        );
     
-                }
-                
-                // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
-                if(!resp._links.last && this.mode === 'infinite' && resp.total_items !== 0) {
+                    }
                     
-                    throw new Error(
-                        'You are using the \'infinite\' mode and the server did not returned a \'last\' ' + 
-                        'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' + 
-                        'is well formed. If your collection is not paginated you could use the \'server\' mode instead.'
-                    );
+                    // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
+                    if(!resp._links.last && this.mode === 'infinite' && resp.total_items !== 0) {
+                        
+                        throw new Error(
+                            'You are using the \'infinite\' mode and the server did not returned a \'last\' ' + 
+                            'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' + 
+                            'is well formed. If your collection is not paginated you could use the \'server\' mode instead.'
+                        );
     
-                }
+                    }
     
-                var links = {};
-                
-                if(resp.total_items !== 0) {
-                    links.first = resp._links.first.href;
-                    links.last = resp._links.last.href;
-                }
-                
-                if(resp._links.next) {
-                    links.next = resp._links.next.href;
-                }
-                
-                if(resp._links.prev) {
-                    links.prev = resp._links.prev.href;
-                }
-                
-                return links;
-    
-            },
-            
-            parseRecords : function(resp, options) {
-    
-                // The 'halCollectionName' parameter is required !
-                if(!this.halCollectionName) {
-    
-                    throw new Error('A \'halCollectionName\' parameter is required !');
-    
-                }
-    
-                return resp._embedded[this.halCollectionName];
+                    var links = {};
                     
-            },
-            
-            parseState: function (resp, queryParams, state, options) {
-                
-                return {
-                    totalItems: resp.total_items
-                };
-                
-            },
-            
-            // FIXME: Cette fonction a presque le même code que PageableCollection.getPage(index, options) excepté 
-            //        qu'elle appelle la fonction de callback 'options.success()' si l'on est en mode 'infinite' et que 
-            //        la page demandée a déjà été récupérée. Sans ce fixe les fonctions 'getPreviousPage()' et 
-            //        'getNextPage()' n'appellent leurs méthodes de callbacks 'success()' ou 'error()' que si les 
-            //        données associées aux pages n'ont pas déjà été récupérées !!! 
-            // TODO: Poster un cas sur le Github du projet et faire un Pull Request
-            getPage: function (index, options) {
-    
-                var mode = this.mode, fullCollection = this.fullCollection;
-    
-                options = options || {fetch: false};
-    
-                var state = this.state,
-                firstPage = state.firstPage,
-                currentPage = state.currentPage,
-                lastPage = state.lastPage,
-                pageSize = state.pageSize;
-    
-                var pageNum = index;
-                switch (index) {
-                  case "first": pageNum = firstPage; break;
-                  case "prev": pageNum = currentPage - 1; break;
-                  case "next": pageNum = currentPage + 1; break;
-                  case "last": pageNum = lastPage; break;
-                  default: pageNum = finiteInt(index, "index");
-                }
-    
-                this.state = this._checkState(_.extend({}, state, {currentPage: pageNum}));
-    
-                options.from = currentPage; 
-                options.to = pageNum;
-    
-                var pageStart = (firstPage === 0 ? pageNum : pageNum - 1) * pageSize;
-                var pageModels = fullCollection && fullCollection.length ?
-                  fullCollection.models.slice(pageStart, pageStart + pageSize) :
-                  [];
-                if ((mode == "client" || (mode == "infinite" && !_.isEmpty(pageModels))) &&
-                    !options.fetch) {
-                  
-                    this.reset(pageModels, _.omit(options, "fetch"));
-                  
-                    // >>>> Bout de code ajouté
-                    // FIXME: On a pas la réponse ici ???
-                    options.success(pageModels, null /* response */, options);
-                    // <<<<
+                    if(resp.total_items !== 0) {
+                        links.first = resp._links.first.href;
+                        links.last = resp._links.last.href;
+                    }
                     
-                  return this;
-                }
+                    if(resp._links.next) {
+                        links.next = resp._links.next.href;
+                    }
+                    
+                    if(resp._links.prev) {
+                        links.prev = resp._links.prev.href;
+                    }
+                    
+                    return links;
     
-                if (mode == "infinite") options.url = this.links[pageNum];
+                },
+                
+                parseRecords : function(resp, options) {
     
-                return this.fetch(_.omit(options, "fetch"));
-              }
+                    // The 'rel' parameter is required !
+                    if(!this.rel) {
     
-        }
-    );
+                        throw new Error('A \'rel\' parameter is required !');
+    
+                    }
+    
+                    return resp._embedded[this.rel];
+                        
+                },
+    
+                parseState: function (resp, queryParams, state, options) {
+                    
+                    return {
+                        totalItems: resp.total_items
+                    };
+                    
+                },
+                
+                // FIXME: Cette fonction a presque le même code que PageableCollection.getPage(index, options) excepté 
+                //        qu'elle appelle la fonction de callback 'options.success()' si l'on est en mode 'infinite' et que 
+                //        la page demandée a déjà été récupérée. Sans ce fixe les fonctions 'getPreviousPage()' et 
+                //        'getNextPage()' n'appellent leurs méthodes de callbacks 'success()' ou 'error()' que si les 
+                //        données associées aux pages n'ont pas déjà été récupérées !!! 
+                // TODO: Poster un cas sur le Github du projet et faire un Pull Request
+                getPage: function (index, options) {
+    
+                    var mode = this.mode, fullCollection = this.fullCollection;
+    
+                    options = options || {fetch: false};
+    
+                    var state = this.state,
+                    firstPage = state.firstPage,
+                    currentPage = state.currentPage,
+                    lastPage = state.lastPage,
+                    pageSize = state.pageSize;
+    
+                    var pageNum = index;
+                    switch (index) {
+                      case "first": pageNum = firstPage; break;
+                      case "prev": pageNum = currentPage - 1; break;
+                      case "next": pageNum = currentPage + 1; break;
+                      case "last": pageNum = lastPage; break;
+                      default: pageNum = finiteInt(index, "index");
+                    }
+    
+                    this.state = this._checkState(_.extend({}, state, {currentPage: pageNum}));
+    
+                    options.from = currentPage; 
+                    options.to = pageNum;
+    
+                    var pageStart = (firstPage === 0 ? pageNum : pageNum - 1) * pageSize;
+                    var pageModels = fullCollection && fullCollection.length ?
+                      fullCollection.models.slice(pageStart, pageStart + pageSize) :
+                      [];
+                    if ((mode == "client" || (mode == "infinite" && !_.isEmpty(pageModels))) &&
+                        !options.fetch) {
+                      
+                        this.reset(pageModels, _.omit(options, "fetch"));
+                      
+                        // >>>> Bout de code ajouté
+                        // FIXME: On a pas la réponse ici ???
+                        options.success(pageModels, null /* response */, options);
+                        // <<<<
+                        
+                      return this;
+                    }
+    
+                    if (mode == "infinite") options.url = this.links[pageNum];
+    
+                    return this.fetch(_.omit(options, "fetch"));
+                  }
+    
+            }
+        );
+        
+    })();
 
     return Hal;
 

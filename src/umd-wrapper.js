@@ -36,7 +36,8 @@
      * @namespace Hal
      */
     var Hal = {};
-
+    
+    // @include embedded/embedded.js
     // @include link/link.js
     // @include link/link-array.js
     // @include link/links.js

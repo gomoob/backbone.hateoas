@@ -1,7 +1,7 @@
 /*jshint -W030 */
 
 describe(
-    'Hal.Model', 
+    'Hal.Collection', 
     function() {
 
         describe('initialize', function() {

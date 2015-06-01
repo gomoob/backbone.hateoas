@@ -25,6 +25,30 @@ Hal.Links = Backbone.Model.extend(
                 this
             );
 
-        }     
+        }, 
+        
+        /**
+         * Utility function used to get the `self` link.
+         * 
+         * @return {Hal.Link} The self link.
+         */
+        getSelf : function() {
+
+            return this.get('self');
+
+        },
+        
+        /**
+         * Function used to indicate if the `self` link is defined.
+         * 
+         * @return {Boolean} True if the self link is defined, false otherwise.
+         */
+        hasSelf : function() {
+
+            var self = this.getSelf();
+            
+            return !(_.isNull(self) || _.isUndefined(self));
+
+        }
     }
 );
