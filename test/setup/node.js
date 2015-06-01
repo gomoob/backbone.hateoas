@@ -25,8 +25,8 @@ global.Backbone.PageableCollection = require('backbone.paginator');
 // because it contains very simple code
 Hal = {};
 
-require(process.env.srcDir + '/link/link-array');
 require(process.env.srcDir + '/link/link');
+require(process.env.srcDir + '/link/link-array');
 require(process.env.srcDir + '/link/links');
 require(process.env.srcDir + '/model');
 require(process.env.srcDir + '/collection');

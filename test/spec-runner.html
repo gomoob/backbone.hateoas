@@ -25,16 +25,32 @@
     <script type="text/javascript" src='../node_modules/sinon/pkg/sinon.js'></script>
     <script type="text/javascript" src='../node_modules/sinon-chai/lib/sinon-chai.js'></script>
     
+    <!-- Test utilities -->
     <script type="text/javascript" src="setup/html-injector.js"></script>
 
-    <script type="text/javascript" src="../src/hal.js"></script>
+    <!-- Required libraries -->
+    <script type="text/javascript" src='../bower_components/underscore/underscore.js'></script>
+    <script type="text/javascript" src='../bower_components/backbone/backbone.js'></script>
+    <script type="text/javascript" src='../bower_components/backbone.paginator/lib/backbone.paginator.js'></script>
+
+    <script type="text/javascript">
+        var Hal = {};
+    </script>
+    <script type="text/javascript" src="../src/link/link.js"></script>
+    <script type="text/javascript" src="../src/link/link-array.js"></script>
+    <script type="text/javascript" src="../src/link/links.js"></script>
+    <script type="text/javascript" src="../src/model.js"></script>
+    <script type="text/javascript" src="../src/collection.js"></script>
 
     <script type="text/javascript">
         var expect = chai.expect;
         mocha.setup('bdd');
     </script>
 
-    <script type="text/javascript" src="spec/hal.js"></script>
+    <script type="text/javascript" src="spec/collection.js"></script>
+    <script type="text/javascript" src="spec/model.js"></script>
+    <script type="text/javascript" src="spec/link/link-array.js"></script>
+    <script type="text/javascript" src="spec/link/link.js"></script>
 
     <script type="text/javascript">
         mocha.checkLeaks();

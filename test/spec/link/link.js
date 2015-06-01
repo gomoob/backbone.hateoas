@@ -41,5 +41,49 @@ describe(
 
         });
         
+        describe('toJSON', function() {
+
+            it('With very simple link', function() {
+                
+                var link = new Hal.Link(
+                    {
+                        href : 'http://www.google.com'
+                    }
+                );
+                
+                expect(JSON.stringify(link.toJSON())).to.equal(JSON.stringify({href: 'http://www.google.com'}));
+
+            });
+            
+            it('With all possible properties', function() {
+               
+                var link = new Hal.Link(
+                    {
+                        deprecation : 'http://myserver.com/deprecation',
+                        name : 'LINK_NAME',
+                        href : 'http://myserver.com/users/{id}',
+                        hreflang : 'fr',
+                        profile : 'http://myserver.com/profile',
+                        templated : true,
+                        title : 'LINK_TITLE',
+                        type : 'application/hal+json'
+                    }
+                );
+
+                expect(JSON.stringify(link.toJSON())).to.equal(JSON.stringify({
+                    deprecation : 'http://myserver.com/deprecation',
+                    name : 'LINK_NAME',
+                    href : 'http://myserver.com/users/{id}',
+                    hreflang : 'fr',
+                    profile : 'http://myserver.com/profile',
+                    templated : true,
+                    title : 'LINK_TITLE',
+                    type : 'application/hal+json'
+                }));
+                
+            });
+            
+        });
+        
     }
 );

@@ -19,22 +19,7 @@ Hal.Links = Backbone.Model.extend(
                 options, 
                 function(link, rel) {
 
-                    if(_.isArray(link)) {
-
-                        var c = new Hal.LinkArray();
-                        _.each(link, function(l) {
-
-                            c.add(new Hal.Link(l));
-                            
-                        });
-
-                        this.set(rel, c);
-
-                    } else {
-                        
-                        this.set(rel, new Hal.Link(link));
-                        
-                    }
+                    this.set(rel, _.isArray(link) ? new Hal.LinkArray(link) : new Hal.Link(link));
 
                 },
                 this

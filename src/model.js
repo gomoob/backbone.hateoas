@@ -45,12 +45,24 @@ Hal.Model = Backbone.Model.extend({
 
     },
 
+    /**
+     * Utility function used to get a HAL link by relation name.
+     * 
+     * @param {String} rel The name of the relation used to retrieve the link.
+     * 
+     * @retunr {Hal.Link | Hal.LinkArray} A link a link array associated to the relation name.
+     */
     getLink : function(rel) {
 
         return this.get('_links').get(rel);
 
     }, 
-    
+
+    /**
+     * Utility function used to retrieve all the associated HAL links.
+     * 
+     * @return {Hal.Links} An object which represents the HAL links associated to this model.
+     */
     getLinks : function() {
 
         return this.get('_links');

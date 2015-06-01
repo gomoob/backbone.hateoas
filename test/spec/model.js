@@ -87,7 +87,7 @@ describe(
                 var friends = model.get('_links').get('friends');
                 expect(friends.isArray()).to.be.true;
                 expect(friends.size()).to.equal(2);
-                expect(friends.at(0).get('href')).to.equal('http://myserver.com/api/users/2');
+                expect(friends.at(0).get('href')).to.equal('http://myserver.com/api/users/2');                
                 expect(friends.at(0).getHref()).to.equal('http://myserver.com/api/users/2');
                 expect(friends.at(1).get('href')).to.equal('http://myserver.com/api/users/3');
                 expect(friends.at(1).getHref()).to.equal('http://myserver.com/api/users/3');
