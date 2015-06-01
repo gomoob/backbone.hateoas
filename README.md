@@ -97,6 +97,7 @@ So backbone.hateoas defines 2 kinds of resources :
 
 The backbone.hateoas `Hal.Collection` class is an opinionated class to manipulate HAL collection resources, what we call 
 a HAL collection is a resource having the following structure : 
+
 ```json
 {
     "page" : 1, 
@@ -178,7 +179,9 @@ users.getNextPage();
 ## Release History 
 
 ### 0.1.0-alpha2
- * 
+ * Add `_links` parsing and management
+ * Add `_embedded` parsing and management
+ * Continue user documentation
 
 ### 0.1.0-alpha1
  * First alpha release.
