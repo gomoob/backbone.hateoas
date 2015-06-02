@@ -1,7 +1,7 @@
 {
   "name": "backbone.hateoas",
   "description": "Easy use of HAL in your Backbone application.",
-  "version": "0.1.0-alpha3",
+  "version": "0.1.0-alpha4",
   "homepage": "https://github.com/gomoob/backbone.hateoas",
   "author": {
     "name": "GoMoob",
@@ -44,7 +44,6 @@
     "node-localstorage": "~0.5",
     "sinon": "~1.14",
     "sinon-chai": "~2.7",
-    "time-grunt": "~1.1",
-    "xmlhttprequest": "~1.7"
+    "time-grunt": "~1.1"
   }
 }

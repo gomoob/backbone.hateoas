@@ -81,17 +81,86 @@ define('backbone.hateoas', function(Hal) {
 The backbone.hateoas library extends classical Backbone Model and Collection classes to provided specific HATEOAS and 
 HAL features.
 
+### Global configuration
+
+#### `urlRoot` property
+
+When you work with HAL you often have a root URL which is global to your API, in most cases this URL is the root of a 
+catalog (i.e a special resource describing the documentation of your endpoints and how to access them). 
+
+The `Hal.urlRoot` property allows you to configure this global API root URL (please note that the name `urlRoot` has 
+been chosen to be the same as the Backbone Model `urlRoot` parameter).  
+
+For exemple if our API is located at `https://myserver.com/api` then we could declare the following `Hal.urlRoot`.
+
+```javascript
+Hal.urlRoot = 'https://myserver.com/api';
+```
+
+After that `Hal.Collection` and `Hal.Model` can automatically generate absolute API urls for you.
+```javascript
+var users = new Hal.Collection();
+users.urlMiddle = 'users';
+
+// Fetch 'https://myserver.com/api/users'
+users.fetch(); 
+
+// Hal.Model can also be used easily without any associated collection
+// This will fetch 'https://myserver.com/api/users/1'
+var john = new Hal.Model();
+john.urlMiddle = 'users';
+john.set('id', 1);
+john.fetch();
+
+// If you want you can "force" use of other absolute URLs
+// This will fetch 'https://myserver2.com/api/users'
+users.url = 'https://myserver2.com/api/users';
+users.fetch();
+
+// This will fetch 'https://myserver2.com/api/users/jdoe'
+john.urlRoot = 'https://myserver2.com/api/users/jdoe';
+john.fetch();
+```
+
 ### HAL Resource classes
 
 The HAL standard defines a generic resource concept, but Backbone defines 2 kinds of "resources" (the models and the 
 collections). 
 
 So backbone.hateoas defines 2 kinds of resources : 
- * The `Hal.Resource` class defines a generic HAL resource and is very similar to the `Backbone.Model` class ;
+ * The `Hal.Model` class defines a generic HAL resource and is very similar to the `Backbone.Model` class ;
  * The `Hal.Collection` class is a specialized HAL resource dedicated to manipulation of collection resources, this one 
    is a little opinionated (but its design is based on REST API best practices).
 
 #### Hal.Resource
+
+##### `middleUrl` property
+
+The `middleUrl` is an additional URL parameter specific to backbone.hateoas and which easier model fetching without 
+being forced to attach your model to a collection.
+
+The `middleUrl` is used only when your model is not linked to a collection having a URL and which do not define a 
+specific `urlRoot` property. 
+
+The `middleUrl` is used to create an absolute URL (with the `url()` method) equal to the concatenation of the 
+`Hal.urlRoot` property plus the `middleUrl`.
+
+Here is an exemple : 
+```javascript
+Hal.urlRoot = 'https://myserver.com/api';
+
+// This will fetch 'https://myserver.com/api/users/1'
+var john = new Hal.Model();
+john.urlMiddle = 'users';
+john.set('id', 1);
+john.fetch();
+
+// This will fetch 'https://myserver.com/api/companies/2/users/1'
+john = new Hal.Model();
+john.urlMiddle = 'companies/2/users';
+john.set('id', 1);
+john.fetch();
+```
 
 #### Hal.Collection
 
@@ -177,6 +246,14 @@ users.getNextPage();
 ### Manage embedded resources
 
 ## Release History 
+
+### 0.1.0-alpha4
+ * Add a global `Hal.urlRoot` parameter
+ * Add a new `urlMiddle` parameter to be used with `Hal.Collection` and `Hal.Model`
+ * Fix several `toJSON()` method implementations
+ * Now the `Hal.Model` class is initialized in the `set(key, val, options)` method instead of `initialize(options)`
+ * Fix embedded array resource parsing
+ * Code coverage is better
 
 ### 0.1.0-alpha3
  * Fix AMD dependency problem with Underscore
