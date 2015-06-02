@@ -1,42 +1,42 @@
 (function(root, factory) {
-    
+
     if (typeof define === 'function' && define.amd) {
-        
-        define(['backbone', 'underscore', 'backbone.paginator'], function(Backbone, Underscore, PageableCollection) {
+
+        define(['backbone', 'underscore', 'backbone.paginator'], function(Backbone, _, PageableCollection) {
 
             Backbone.PageableCollection = PageableCollection;
-            
+
             return (root.Hal = factory(root, Backbone, _));
 
         });
-    
+
     }
-  
+
     else if (typeof exports !== 'undefined') {
-    
+
         var Backbone = require('backbone');
         var _ = require('underscore');
         Backbone.PageableCollection = require('backbone.paginator');
-        
+
         module.exports = factory(root, Backbone, _);
 
     }
-    
+
     else {
-    
+
         root.Hal = factory(root, root.Backbone, root._);
-    
+
     }
-    
+
 }(this, function(root, Backbone, _) {
 
     'use strict';
-    
+
     /**
      * @namespace Hal
      */
     var Hal = {};
-    
+
     /**
      * Backbone model which represents a set of embedded resources.
      * 

@@ -178,6 +178,9 @@ users.getNextPage();
 
 ## Release History 
 
+### 0.1.0-alpha3
+ * Fix AMD dependency problem with Underscore
+
 ### 0.1.0-alpha2
  * Add `_links` parsing and management
  * Add `_embedded` parsing and management
