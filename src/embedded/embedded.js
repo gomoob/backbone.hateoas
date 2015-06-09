@@ -173,6 +173,14 @@ Hal.Embedded = Backbone.Model.extend(
 
                     }
 
+                    // Null or undefined is authorized, in most case it is encounterd when the 'unset(attr)' method is
+                    // called
+                    else if(_.isNull(embeddedResource) || _.isUndefined(embeddedResource)) {
+
+                        Backbone.Model.prototype.set.call(this, rel, embeddedResource);
+
+                    }
+
                     // Otherwise this is an error
                     else {
 

@@ -62,12 +62,7 @@ describe(
 
                 expect(JSON.stringify(user.toJSON())).to.equal(JSON.stringify({
                     firstName : 'Baptiste',
-                    lastName : 'Gaillard',
-                    _links : {
-                        self: {
-                            href : 'http://myserver.com/api/users/1'
-                        }
-                    }
+                    lastName : 'Gaillard'
                 }));
 
                 // Checks the 'addresses' embedded resource
@@ -79,24 +74,14 @@ describe(
                         city : 'Paris',
                         country : 'France',
                         street : '142 Rue de Rivoli',
-                        zip : '75001',
-                        _links : {
-                            self : {
-                                href : 'http://myserver.com/api/addresses/1'
-                            }
-                        }
+                        zip : '75001'
                     }
                 ));
                 expect(JSON.stringify(addresses[1].toJSON())).to.equal(JSON.stringify({
                         city : 'Nantes',
                         country : 'France',
                         street : '11 Bis Rue de Maréchal de Lattre de Tassigny',
-                        zip : '44000',
-                        _links : {
-                            self : {
-                                href : 'http://myserver.com/api/addresses/2'
-                            }
-                        }
+                        zip : '44000'
                     }
                 ));
 

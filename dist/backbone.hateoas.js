@@ -212,6 +212,14 @@
     
                         }
     
+                        // Null or undefined is authorized, in most case it is encounterd when the 'unset(attr)' method is
+                        // called
+                        else if(_.isNull(embeddedResource) || _.isUndefined(embeddedResource)) {
+    
+                            Backbone.Model.prototype.set.call(this, rel, embeddedResource);
+    
+                        }
+    
                         // Otherwise this is an error
                         else {
     
@@ -957,37 +965,49 @@
                 noEmbedded = _.isEmpty(this.getEmbedded().attributes),
                 cloned = null;
     
-            // The Hal.Model has no '_links' and not '_embedded' so we do not inject them in the JSON object
-            if(noLinks && noEmbedded) {
+            // If the 'Content-Type' must be 'application/json'
+            if(_.isUndefined(Hal.contentType) || _.isNull(Hal.contentType) || Hal.contentType === 'application/json') {
     
-                cloned = _.clone(this.attributes);
-    
-            }
-    
-            // The Hal.Model has no '_links' and has at least one '_embedded' property
-            else if(noLinks) {
-    
-                cloned = _.extend(this.attributes, {'_embedded' : this.getEmbedded().toJSON()});
+                cloned = _.extend(this.attributes, this.getEmbedded().toJSON());
     
             }
     
-            // The Hal.Model has at least one link and no embedded resources
-            else if(noEmbedded) {
+            // If the 'Content-Type' must be 'application/hal+json'
+            else if(Hal.contentType === 'application/hal+json') {
     
-                cloned = _.extend(this.attributes, {'_links' : this.getLinks().toJSON()});
+                // The Hal.Model has no '_links' and not '_embedded' so we do not inject them in the JSON object
+                if(noLinks && noEmbedded) {
     
-            }
+                    cloned = _.clone(this.attributes);
     
-            // The Hal.Model has both links and embedded resources
-            else {
+                }
     
-                cloned = _.extend(
-                    _.clone(this.attributes),
-                    {
-                        '_embedded' : this.getEmbedded().toJSON(),
-                        '_links' : this.getLinks().toJSON()
-                    }
-                );
+                // The Hal.Model has no '_links' and has at least one '_embedded' property
+                else if(noLinks) {
+    
+                    cloned = _.extend(this.attributes, {'_embedded' : this.getEmbedded().toJSON()});
+    
+                }
+    
+                // The Hal.Model has at least one link and no embedded resources
+                else if(noEmbedded) {
+    
+                    cloned = _.extend(this.attributes, {'_links' : this.getLinks().toJSON()});
+    
+                }
+    
+                // The Hal.Model has both links and embedded resources
+                else {
+    
+                    cloned = _.extend(
+                        _.clone(this.attributes),
+                        {
+                            '_embedded' : this.getEmbedded().toJSON(),
+                            '_links' : this.getLinks().toJSON()
+                        }
+                    );
+    
+                }
     
             }
     

@@ -83,6 +83,102 @@ HAL features.
 
 ### Global configuration
 
+#### `contentType` property
+
+The HAL standard defines 2 new media types which are `application/hal+json` and `application/hal+xml`, it also indicates 
+the following : 
+
+> When serving HAL over HTTP, the `Content-Type` of the response should contain the relevant media type name.
+
+So it defines how the server should respond but is does not define how we should send HTTP POST, PUT and PATCH requests.
+In fact this is something which seems to be left unspecified deliberatly. 
+
+The `Hal.contentType` allow to configure how your models and collections should be serialized before being sent to the 
+server (i.e is allow to change the behavior of the Backbone `toJSON()` method).
+
+The current version of the library supports 2 content types : `application/json` and `application/hal+json`. 
+
+##### application/json
+
+The following sample...
+
+```javascript
+Hal.contentType = 'application/json';
+
+var john = new Hal.Model();
+john.urlMiddle = 'users';
+john.set('id', 'jdoe');
+john.fetch({
+    success : function() {
+        console.log(user.toJSON());     
+    }
+});
+```
+
+will display...
+
+```
+{
+    "id": 1,
+    "firstName": "John",
+    "lastName" : "Doe",
+    "address" : {
+        "city" : "Paris",
+        "country" : "France",
+        "street" : "142 Rue de Rivoli",
+        "zip" : "75001"
+    }
+}
+```
+
+##### application/hal+json
+
+The following sample...
+
+```javascript
+Hal.contentType = 'application/hal+json';
+
+var john = new Hal.Model();
+john.urlMiddle = 'users';
+john.set('id', 'jdoe');
+john.fetch({
+    success : function() {
+        console.log(user.toJSON());     
+    }
+});
+```
+
+will display...
+
+```
+{
+    "id": 1,
+    "firstName": "John",
+    "lastName" : "Doe",
+    "_embedded" : {
+        "address" : {
+            "city" : "Paris",
+            "country" : "France",
+            "street" : "142 Rue de Rivoli",
+            "zip" : "75001",
+            "_links" : {
+                "self" : {
+                    "href" : "http://localhost/backbone.hateoas/test/api/addresses/1"
+                }
+            }
+        }
+    },
+    "_links" : {
+        "address" : {
+            "href" : "http://localhost/backbone.hateoas/test/api/addresses/1"
+        },
+        "self" : { 
+            "href" : "http://localhost/backbone.hateoas/test/api/users/1"
+        }
+    }
+}
+```
+
 #### `urlRoot` property
 
 When you work with HAL you often have a root URL which is global to your API, in most cases this URL is the root of a 
@@ -245,9 +341,65 @@ users.getNextPage();
 
 ### Manage embedded resources
 
+backbone.hateoas has initialy been designed to work with the HAL standard so it allows to manipulate REST resources and 
+what we call embedded resources. 
 
+When working with embedded resources **YOU MUST ALWAYS** use the `*Embedded(...)` methods provided by the library 
+otherwise the serialization / deserialization will not work as expected. 
+
+This design has also been decided to "force" developers to show their intention in the code source, so if you see a 
+`getEmbedded(...)` instruction somewhere you known its to get an embedded resource and not only a "generic object".
+
+When you have an `Hal.Model` object (for example `user`) which embeds an other `Hal.Model` object (for example `address`
+) then the first object do not have a direct `address` link. Instead each `Hal.Model` object is linked to a special 
+`Hal.Embedded` object which transports the associated embedded resources. 
+
+Here is an example.
+
+```javascript
+var john = new Hal.Model();
+john.urlMiddle = 'users';
+john.set('id', 1);
+john.fetch({
+    success : function() {
+    
+        // Gets the '_embedded' resources container
+        var embedded  = john.getEmbedded();
+        var address = embedded.get('address');
+        
+        // We can also get the embedded addres using a shortcut method
+        address = john.getEmbedded('address');
+        
+        // Set we can also change the embedded resources
+        john.setEmbedded('address', new Hal.Model());
+        
+        // Other simply reset / remove the embedded resources
+        john.unsetEmbedded('address');
+        
+        // Or check if an embedded resource is their
+        if(john.hasEmbedded('friends')) {
+        
+            _.each(john.getEmbedded('friend'), function(friend) {
+            
+                console.log('A friend of John : ' + friend.get('firstName') + ' ' + friend.get('lastName'));
+
+            });
+        
+        }
+        
+    }
+});
+```
+
+Please note that the utility methods `getEmbedded(...)`, `setEmbedded(...)`, `hasEmbedded(...)` and `unsetEmbedded(...)` 
+have been named to be similar to the Backbone `get(...)`, `set(...)`, `has(...)` and `unset(...)` methods.
 
 ## Release History 
+
+### 0.1.0-alpha6
+ * Allow the `toJSON()` methods to return plain JSON or HAL JSON
+ * Add a new global `Hal.contentType` parameter to configure the behavior of the `toJSON()` methods
+ * Add documentation to explain how to manipulate embedded resources
 
 ### 0.1.0-alpha5
  * Fix documentation, we talked about a `middleUrl` parameter but it was `urlMiddle`

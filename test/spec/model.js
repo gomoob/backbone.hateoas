@@ -262,9 +262,12 @@ describe(
 
         });
 
-        describe('toJSON', function() {
+        describe('toJSON using "application/hal+json" content type', function() {
 
             it('With a simple object without links and without embedded resources', function() {
+
+                // Configures backbone.hateoas to always serialze using HAL
+                Hal.contentType = 'application/hal+json';
 
                 var user = new Hal.Model({
                     firstName : 'Baptiste',
@@ -279,6 +282,9 @@ describe(
             });
 
             it('With a simple object with links and without embedded resources', function() {
+
+                // Configures backbone.hateoas to always serialze using HAL
+                Hal.contentType = 'application/hal+json';
 
                 var user = new Hal.Model({
                     firstName : 'Baptiste',
@@ -303,6 +309,9 @@ describe(
             });
 
             it('With a complex object without links and with embedded resources', function() {
+
+                // Configures backbone.hateoas to always serialze using HAL
+                Hal.contentType = 'application/hal+json';
 
                 var user = new Hal.Model({
                     firstName : 'Baptiste',
@@ -426,6 +435,9 @@ describe(
 
             it('With a complex object with links and with embedded resources', function() {
 
+                // Configures backbone.hateoas to always serialze using HAL
+                Hal.contentType = 'application/hal+json';
+
                 var user = new Hal.Model({
                     firstName : 'Baptiste',
                     lastName : 'Gaillard',
@@ -551,6 +563,236 @@ describe(
                         self: {
                             href : 'http://myserver.com/api/users/1'
                         }
+                    }
+                }));
+
+            });
+
+        });
+
+        describe('toJSON using "application/json" content type', function() {
+
+            it('With a simple object without links and without embedded resources', function() {
+
+                // Configures backbone.hateoas to always serialze using plain JSON
+                Hal.contentType = 'application/json';
+
+                var user = new Hal.Model({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard'
+                });
+
+                expect(JSON.stringify(user.toJSON())).to.equal(JSON.stringify({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard'
+                }));
+
+            });
+
+            it('With a simple object with links and without embedded resources', function() {
+
+                // Configures backbone.hateoas to always serialze using plain JSON
+                Hal.contentType = 'application/json';
+
+                var user = new Hal.Model({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard',
+                    _links : {
+                        self: {
+                            href : 'http://myserver.com/api/users/1'
+                        }
+                    }
+                });
+
+                expect(JSON.stringify(user.toJSON())).to.equal(JSON.stringify({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard'
+                }));
+
+            });
+
+            it('With a complex object without links and with embedded resources', function() {
+
+                // Configures backbone.hateoas to always serialze using plain JSON
+                Hal.contentType = 'application/json';
+
+                var user = new Hal.Model({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard',
+                    _embedded : {
+                        address : {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        },
+                        friends : [
+                            {
+                                firstName : 'Simon',
+                                lastName : 'Baudry',
+                                _links : {
+                                    self : {
+                                        href: 'http://myserver.com/api/users/2'
+                                    }
+                                }
+                            },
+                            {
+                                firstName : 'John',
+                                lastName : 'Doe',
+                                _links : {
+                                    self : {
+                                        href: 'http://myserver.com/api/users/3'
+                                    }
+                                }
+                            }
+                        ],
+                        hobbies : {
+                            count : 3,
+                            total : 12,
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/1/hobbies?page=2'
+                                },
+                                first : {
+                                    href: 'http://myserver.com/api/users/1/hobbies?page=1'
+                                },
+                                prev : {
+                                    href : 'http://myserver.com/api/users/1/hobbies?page=1'
+                                },
+                                next : {
+                                    href : 'http://myserver.com/api/users/1/hobbies?page=3'
+                                },
+                                last : {
+                                    href : 'http://myserver.com/api/users/1/hobbies?page=4'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                expect(JSON.stringify(user.toJSON())).to.equal(JSON.stringify({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard',
+                    address : {
+                        city : 'Paris',
+                        country : 'France',
+                        street : '142 Rue de Rivoli',
+                        zip : '75001'
+                    },
+                    friends : [
+                        {
+                            firstName : 'Simon',
+                            lastName : 'Baudry'
+                        },
+                        {
+                            firstName : 'John',
+                            lastName : 'Doe'
+                        }
+                    ],
+                    hobbies : {
+                        count : 3,
+                        total : 12
+                    }
+                }));
+
+            });
+
+            it('With a complex object with links and with embedded resources', function() {
+
+                // Configures backbone.hateoas to always serialze using plain JSON
+                Hal.contentType = 'application/json';
+
+                var user = new Hal.Model({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard',
+                    _embedded : {
+                        address : {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        },
+                        friends : [
+                            {
+                                firstName : 'Simon',
+                                lastName : 'Baudry',
+                                _links : {
+                                    self : {
+                                        href: 'http://myserver.com/api/users/2'
+                                    }
+                                }
+                            },
+                            {
+                                firstName : 'John',
+                                lastName : 'Doe',
+                                _links : {
+                                    self : {
+                                        href: 'http://myserver.com/api/users/3'
+                                    }
+                                }
+                            }
+                        ],
+                        hobbies : {
+                            count : 3,
+                            total : 12,
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/1/hobbies?page=2'
+                                },
+                                first : {
+                                    href: 'http://myserver.com/api/users/1/hobbies?page=1'
+                                },
+                                prev : {
+                                    href : 'http://myserver.com/api/users/1/hobbies?page=1'
+                                },
+                                next : {
+                                    href : 'http://myserver.com/api/users/1/hobbies?page=3'
+                                },
+                                last : {
+                                    href : 'http://myserver.com/api/users/1/hobbies?page=4'
+                                }
+                            }
+                        }
+                    },
+                    _links : {
+                        self: {
+                            href : 'http://myserver.com/api/users/1'
+                        }
+                    }
+                });
+
+                expect(JSON.stringify(user.toJSON())).to.equal(JSON.stringify({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard',
+                    address : {
+                        city : 'Paris',
+                        country : 'France',
+                        street : '142 Rue de Rivoli',
+                        zip : '75001'
+                    },
+                    friends : [
+                        {
+                            firstName : 'Simon',
+                            lastName : 'Baudry'
+                        },
+                        {
+                            firstName : 'John',
+                            lastName : 'Doe'
+                        }
+                    ],
+                    hobbies : {
+                        count : 3,
+                        total : 12
                     }
                 }));
 
