@@ -258,6 +258,17 @@ john.set('id', 1);
 john.fetch();
 ```
 
+##### `toJSON([options])` method
+
+By default the Backbone `toJSON([options])` method do not accept or use any option, a `Hal.Model` can use an additional 
+`contentType` option which can be equal to `application/json` or `application/hal+json`. 
+
+When the `toJSON([options])` method is called with this option it overwrites the `Hal.contentType` configuration only 
+for this call. 
+
+In most cases this is useful when you when to store a serialized version of a resource somewhere (in the local storage 
+for example). 
+
 #### Hal.Collection
 
 The backbone.hateoas `Hal.Collection` class is an opinionated class to manipulate HAL collection resources, what we call 
@@ -395,6 +406,10 @@ Please note that the utility methods `getEmbedded(...)`, `setEmbedded(...)`, `ha
 have been named to be similar to the Backbone `get(...)`, `set(...)`, `has(...)` and `unset(...)` methods.
 
 ## Release History 
+
+### 0.1.0-alpha7
+ * Allow the `toJSON()` method to take a `contentType` option to configure how to serialize a resource, this is useful 
+   when you when to serialize an HAL resource to persist it in the local storage for example.
 
 ### 0.1.0-alpha6
  * Allow the `toJSON()` methods to return plain JSON or HAL JSON

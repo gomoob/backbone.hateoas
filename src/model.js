@@ -129,23 +129,27 @@ Hal.Model = Backbone.Model.extend({
     /**
      * Function used to convert this model into a Javascript object to be passed to `JSON.stringify(obj)`.
      *
+     * @param {Object} options Options used to configure the behavior of the function.
+     *
      * @return {Object} The resulting object which MUST BE compliant with HAL.
      */
-    toJSON : function() {
+    toJSON : function(options) {
 
         var noLinks = _.isEmpty(this.getLinks().attributes),
             noEmbedded = _.isEmpty(this.getEmbedded().attributes),
-            cloned = null;
+            cloned = null,
+            _options = options || {},
+            contentType = _options.contentType || Hal.contentType || 'application/json';
 
         // If the 'Content-Type' must be 'application/json'
-        if(_.isUndefined(Hal.contentType) || _.isNull(Hal.contentType) || Hal.contentType === 'application/json') {
+        if(contentType === 'application/json') {
 
             cloned = _.extend(this.attributes, this.getEmbedded().toJSON());
 
         }
 
         // If the 'Content-Type' must be 'application/hal+json'
-        else if(Hal.contentType === 'application/hal+json') {
+        else if(contentType === 'application/hal+json') {
 
             // The Hal.Model has no '_links' and not '_embedded' so we do not inject them in the JSON object
             if(noLinks && noEmbedded) {
