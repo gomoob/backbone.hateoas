@@ -178,6 +178,88 @@ describe(
 
             });
 
+            it('With simple properties and links and _embedded', function() {
+
+                var user = new Hal.Model({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard',
+                    _embedded : {
+                        address : {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        },
+                        friends : [
+                            {
+                                firstName : 'Simon',
+                                lastName : 'Baudry',
+                                _links : {
+                                    self : {
+                                        href: 'http://myserver.com/api/users/2'
+                                    }
+                                }
+                            },
+                            {
+                                firstName : 'John',
+                                lastName : 'Doe',
+                                _links : {
+                                    self : {
+                                        href: 'http://myserver.com/api/users/3'
+                                    }
+                                }
+                            }
+                        ],
+                        hobbies : {
+                            count : 3,
+                            total : 12,
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/1/hobbies?page=2'
+                                },
+                                first : {
+                                    href: 'http://myserver.com/api/users/1/hobbies?page=1'
+                                },
+                                prev : {
+                                    href : 'http://myserver.com/api/users/1/hobbies?page=1'
+                                },
+                                next : {
+                                    href : 'http://myserver.com/api/users/1/hobbies?page=3'
+                                },
+                                last : {
+                                    href : 'http://myserver.com/api/users/1/hobbies?page=4'
+                                }
+                            }
+                        }
+                    },
+                    _links : {
+                        self: {
+                            href : 'http://myserver.com/api/users/1'
+                        }
+                    }
+                });
+
+                // Check properties
+                expect(user.attributes).to.be.an('object');
+                expect(user.attributes).to.have.property('firstName', 'Baptiste');
+                expect(user.attributes).to.have.property('lastName', 'Gaillard');
+                expect(user.get('firstName')).to.equal('Baptiste');
+                expect(user.get('lastName')).to.equal('Gaillard');
+
+                // Check links
+                expect(user.getLinks()).to.be.defined;
+                expect(user.getLink('self').get('href')).to.equal('http://myserver.com/api/users/1');
+
+                // Check embedded properties
+                expect(user.getEmbedded()).to.be.defined;
+
+            });
+
         });
 
         describe('toJSON', function() {

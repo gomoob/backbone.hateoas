@@ -2,7 +2,7 @@
 
 > A library to use HAL and HATEOAS in your Backbone and Marionette applications.
 
-**backbone.hateoas** is a Javascript library which facilitate the use of the HAL (*Hypermedia Application Language*) 
+**backbone.hateoas** is a Javascript library which facilitates the use of the HAL (*Hypermedia Application Language*) 
 standard in your application.
 
 The HAL specification is quickly described here http://stateless.co/hal_specification.html, the JSON version of HAL has 
@@ -132,18 +132,18 @@ So backbone.hateoas defines 2 kinds of resources :
  * The `Hal.Collection` class is a specialized HAL resource dedicated to manipulation of collection resources, this one 
    is a little opinionated (but its design is based on REST API best practices).
 
-#### Hal.Resource
+#### Hal.Model
 
-##### `middleUrl` property
+##### `urlMiddle` property
 
-The `middleUrl` is an additional URL parameter specific to backbone.hateoas and which easier model fetching without 
+The `urlMiddle` is an additional URL parameter specific to backbone.hateoas and which easier model fetching without 
 being forced to attach your model to a collection.
 
-The `middleUrl` is used only when your model is not linked to a collection having a URL and which do not define a 
+The `urlMiddle` is used only when your model is not linked to a collection having a URL and which do not define a 
 specific `urlRoot` property. 
 
-The `middleUrl` is used to create an absolute URL (with the `url()` method) equal to the concatenation of the 
-`Hal.urlRoot` property plus the `middleUrl`.
+The `urlMiddle` is used to create an absolute URL (with the `url()` method) equal to the concatenation of the 
+`Hal.urlRoot` property plus the `urlMiddle`.
 
 Here is an exemple : 
 ```javascript
@@ -245,7 +245,13 @@ users.getNextPage();
 
 ### Manage embedded resources
 
+
+
 ## Release History 
+
+### 0.1.0-alpha5
+ * Fix documentation, we talked about a `middleUrl` parameter but it was `urlMiddle`
+ * Fix several serialization / deserialization bugs.
 
 ### 0.1.0-alpha4
  * Add a global `Hal.urlRoot` parameter

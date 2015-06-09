@@ -29,6 +29,8 @@ Hal.Model = Backbone.Model.extend({
      */
     _embedded : null,
 
+    // TODO: hasEmbedded(rel)
+
     /**
      * Utility function used to get all the `_embedded` resources attached to the model or a specific `_embedded`
      * resource.
@@ -46,6 +48,18 @@ Hal.Model = Backbone.Model.extend({
         }
 
         return ret;
+
+    },
+
+    /**
+     * Utility function used to set a specific `_embedded` resource.
+     *
+     * @param {String} rel (Optional) The name of the relation type to be used to set the embedded resource.
+     * @param {Hal.Model | Hal.Collection | Hal.Model[]} halResource The HAL resource to set.
+     */
+    setEmbedded : function(rel, halResource) {
+
+        this.getEmbedded().set(rel, halResource);
 
     },
 
@@ -194,40 +208,41 @@ Hal.Model = Backbone.Model.extend({
 
         }
 
+        // If HAL links are declared
         if(attrs._links) {
 
+            // This is the first time we set links on this HAL Model
             if(!this._links) {
 
                 this._links = new Hal.Links(attrs._links);
 
-            } else {
+            }
 
-                for(k in attrs._links) {
+            // This is not the first time we set links on this HAL Model (i.e this is an upgrade)
+            else {
 
-                    this._links.set(k, attrs._links[k]);
-
-                }
+                this._links.set(attrs._links);
 
             }
 
         }
 
+        // If HAL embedded resources are declared
         if(attrs._embedded) {
 
+            // This is the first time we set an embedded resource on this HAL Model
             if(!this._embedded) {
 
                 this._embedded = new Hal.Embedded(attrs._embedded);
 
-            } else {
-
-                for(k in attrs._embedded) {
-
-                    this._embedded.set(k, attrs._embedded[k]);
-
-                }
-
             }
 
+            // This is not the first time we set an embedded resource on this HAL Model (i.e this is an update)
+            else {
+
+                this._embedded.set(attrs._embedded);
+
+            }
 
         }
 

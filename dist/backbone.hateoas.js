@@ -53,66 +53,162 @@
              *        the purpose of this property is the same as the Backbone.Collection `model` property except it defines
              *        a model class for each embedded resource.
              */
-            initialize : function(attributes, options) {
+    //        initialize : function(attributes, options) {
+    
+                // FIXME: Doit être fait dans la méthode set(key, val, options) de la même manière que pour Hal.Model !!!
+    //            _.map(
+    //                attributes,
+    //                function(embeddedResource, rel) {
+    //
+    //                    var halResource = null;
+    //
+    //                    // If 'embedded' is provided then we try to find a specified model or collection class
+    //                    if(this.embedded) {
+    //
+    //                        // The embedded resource is created using a function
+    //                        if(_.isFunction(this.embedded[rel])) {
+    //
+    //                            halResource = this.embedded[rel](rel, embeddedResource, options);
+    //
+    //                        }
+    //
+    //                        // The embedded resource is created using an Hal Collection
+    //                        else if(this.embedded[rel] instanceof Hal.Collection) {
+    //
+    //                            halResource = new Hal.Collection(embeddedResource);
+    //
+    //                        }
+    //
+    //                        // The embedded resource is created using an Hal Model
+    //                        else if(this.embedded[rel] instanceof Hal.Model) {
+    //
+    //                            halResource = new Hal.Model(embeddedResource);
+    //
+    //                        }
+    //
+    //                        // Otherwise this is an error
+    //                        else {
+    //
+    //                            throw new Error(
+    //                                'Invalid embedded model or collection class provided for \'rel\'=\'' + rel + '\' !'
+    //                            );
+    //
+    //                        }
+    //
+    //                    }
+    //
+    //                    // Otherwise if the '_embedded' resource is an array we consider it to be an Hal Collection
+    //                    else if(_.isArray(embeddedResource)) {
+    //
+    //                        halResource = [];
+    //
+    //                        _.each(embeddedResource, function(el) {
+    //
+    //                            halResource.push(new Hal.Model(el));
+    //
+    //                        });
+    //
+    //                    }
+    //
+    //                    // Otherwise of the '_embedded' resourec is an object we consider it to be an Hal Model
+    //                    else if(_.isObject(embeddedResource)) {
+    //
+    //                        halResource = new Hal.Model(embeddedResource);
+    //
+    //                    }
+    //
+    //                    // Otherwise this is an error
+    //                    else {
+    //
+    //                        throw new Error('Invalid embedded resource identified by \'rel\'=\'' + rel + '\' !');
+    //
+    //                    }
+    //
+    //                    this.set(rel, halResource);
+    //
+    //                },
+    //                this
+    //            );
+    
+    //        },
+    
+            /**
+             * Set a hash of model attributes on the object, firing `"change"`. This is the core primitive operation of a
+             * model, updating the data and notifying anyone who needs to know about the change in state. The heart of the
+             * beast.
+             *
+             * @param {Object | String} A Javascript containing multiple key / value pairs to set or the name of a property
+             *        to set.
+             * @param {String | *} The value to associated to a key if the first parameter is a key, options otherwise.
+             * @param {Object} options Options to be used when the first parameter is a key and the second one a value.
+             *
+             * @return {Hal.Model} This.
+             */
+            set: function(key, val, options) {
+    
+                var attrs;
+    
+                if (key === null) {
+    
+                    return this;
+    
+                }
+    
+                // Handle both `"key", value` and `{key: value}` -style arguments.
+                if (typeof key === 'object') {
+    
+                    attrs = key;
+                    options = val;
+    
+                } else {
+    
+                    (attrs = {})[key] = val;
+    
+                }
     
                 _.map(
-                    attributes,
+                    attrs,
                     function(embeddedResource, rel) {
     
-                        var halResource = null;
+                        // If the provided element is already a Hal.Model or a Hal.Collection we set it directly
+                        if(embeddedResource instanceof Hal.Model || embeddedResource instanceof Hal.Collection) {
     
-                        // If 'embedded' is provided then we try to find a specified model or collection class
-                        if(this.embedded) {
-    
-                            // The embedded resource is created using a function
-                            if(_.isFunction(this.embedded[rel])) {
-    
-                                halResource = this.embedded[rel](rel, embeddedResource, options);
-    
-                            }
-    
-                            // The embedded resource is created using an Hal Collection
-                            else if(this.embedded[rel] instanceof Hal.Collection) {
-    
-                                halResource = new Hal.Collection(embeddedResource);
-    
-                            }
-    
-                            // The embedded resource is created using an Hal Model
-                            else if(this.embedded[rel] instanceof Hal.Model) {
-    
-                                halResource = new Hal.Model(embeddedResource);
-    
-                            }
-    
-                            // Otherwise this is an error
-                            else {
-    
-                                throw new Error(
-                                    'Invalid embedded model or collection class provided for \'rel\'=\'' + rel + '\' !'
-                                );
-    
-                            }
+                            Backbone.Model.prototype.set.call(this, rel, embeddedResource);
     
                         }
     
-                        // Otherwise if the '_embedded' resource is an array we consider it to be an Hal Collection
+                        // The current embedded resource is an array
                         else if(_.isArray(embeddedResource)) {
     
-                            halResource = [];
+                            var array = [];
     
-                            _.each(embeddedResource, function(el) {
+                            // For each embedded resource
+                            for(var i = 0; i < embeddedResource.length; ++i) {
     
-                                halResource.push(new Hal.Model(el));
+                                // If the array element is already an Hal.Model or Hal.Collection object we set it directly
+                                if(embeddedResource[i] instanceof Hal.Model || embeddedResource[i] instanceof Hal.Collection) {
     
-                            });
+                                    array.push(embeddedResource[i]);
+    
+                                }
+    
+                                // Otherwise we create an Hal.Model instance by default
+                                else {
+    
+                                    array.push(new Hal.Model(embeddedResource[i]));
+    
+                                }
+    
+                            }
+    
+                            Backbone.Model.prototype.set.call(this, rel, array);
     
                         }
     
-                        // Otherwise of the '_embedded' resourec is an object we consider it to be an Hal Model
-                        else if(_.isObject(embeddedResource)) {
+                        // The current embedded resource is a plain HAL object
+                        else if(_.isObject(embeddedResource)){
     
-                            halResource = new Hal.Model(embeddedResource);
+                            Backbone.Model.prototype.set.call(this, rel, new Hal.Model(embeddedResource));
     
                         }
     
@@ -123,11 +219,11 @@
     
                         }
     
-                        this.set(rel, halResource);
-    
                     },
                     this
                 );
+    
+                return this;
     
             },
     
@@ -145,6 +241,7 @@
                     var resource = this.attributes[rel];
     
                     // If the embedded resource is an array then we convert each object
+                    // FIXME: Ici il faut pouvoir serialiser les collections Backbone également...
                     if(_.isArray(resource)) {
     
                         json[rel] = [];
@@ -602,24 +699,24 @@
      */
     Hal.Links = Backbone.Model.extend(
         {
-            /**
-             * Function used to initialize the links.
-             *
-             * @param {Object} options Options used to initialize the links.
-             */
-            initialize : function(options) {
-    
-                _.map(
-                    options,
-                    function(link, rel) {
-    
-                        this.set(rel, _.isArray(link) ? new Hal.LinkArray(link) : new Hal.Link(link));
-    
-                    },
-                    this
-                );
-    
-            },
+    //        /**
+    //         * Function used to initialize the links.
+    //         *
+    //         * @param {Object} options Options used to initialize the links.
+    //         */
+    //        initialize : function(options) {
+    //
+    //            _.map(
+    //                options,
+    //                function(link, rel) {
+    //
+    //                    this.set(rel, _.isArray(link) ? new Hal.LinkArray(link) : new Hal.Link(link));
+    //
+    //                },
+    //                this
+    //            );
+    //
+    //        },
     
             /**
              * Utility function used to get the `self` link.
@@ -642,6 +739,80 @@
                 var self = this.getSelf();
     
                 return !(_.isNull(self) || _.isUndefined(self));
+    
+            },
+    
+            /**
+             * Set a hash of model attributes on the object, firing `"change"`. This is the core primitive operation of a
+             * model, updating the data and notifying anyone who needs to know about the change in state. The heart of the
+             * beast.
+             *
+             * @param {Object | String} A Javascript containing multiple key / value pairs to set or the name of a property
+             *        to set.
+             * @param {String | *} The value to associated to a key if the first parameter is a key, options otherwise.
+             * @param {Object} options Options to be used when the first parameter is a key and the second one a value.
+             *
+             * @return {Hal.Model} This.
+             */
+            set: function(key, val, options) {
+    
+                var attrs;
+    
+                if (key === null) {
+    
+                    return this;
+    
+                }
+    
+                // Handle both `"key", value` and `{key: value}` -style arguments.
+                if (typeof key === 'object') {
+    
+                    attrs = key;
+                    options = val;
+    
+                } else {
+    
+                    (attrs = {})[key] = val;
+    
+                }
+    
+                _.map(
+                    attrs,
+                    function(link, rel) {
+    
+                        // If the provided element is already a Hal.Link we set it directly
+                        if(link instanceof Hal.Link) {
+    
+                            Backbone.Model.prototype.set.call(this, rel, link);
+    
+                        }
+    
+                        // Otherwise if the provided element is an array
+                        else if(_.isArray(link)) {
+    
+                            Backbone.Model.prototype.set.call(this, rel, new Hal.LinkArray(link));
+    
+                        }
+    
+                        // Otherwise if the provided element is an object
+                        else if(_.isObject(link)) {
+    
+                            Backbone.Model.prototype.set.call(this, rel, new Hal.Link(link));
+    
+                        }
+    
+                        // Otherwise this is an error
+                        else {
+    
+                            throw new Error('Invalid link identified by \'rel\'=\'' + rel + '\' !');
+    
+                        }
+    
+                    },
+                    this
+                );
+    
+                return this;
     
             },
     
@@ -697,6 +868,8 @@
          */
         _embedded : null,
     
+        // TODO: hasEmbedded(rel)
+    
         /**
          * Utility function used to get all the `_embedded` resources attached to the model or a specific `_embedded`
          * resource.
@@ -714,6 +887,18 @@
             }
     
             return ret;
+    
+        },
+    
+        /**
+         * Utility function used to set a specific `_embedded` resource.
+         *
+         * @param {String} rel (Optional) The name of the relation type to be used to set the embedded resource.
+         * @param {Hal.Model | Hal.Collection | Hal.Model[]} halResource The HAL resource to set.
+         */
+        setEmbedded : function(rel, halResource) {
+    
+            this.getEmbedded().set(rel, halResource);
     
         },
     
@@ -862,40 +1047,41 @@
     
             }
     
+            // If HAL links are declared
             if(attrs._links) {
     
+                // This is the first time we set links on this HAL Model
                 if(!this._links) {
     
                     this._links = new Hal.Links(attrs._links);
     
-                } else {
+                }
     
-                    for(k in attrs._links) {
+                // This is not the first time we set links on this HAL Model (i.e this is an upgrade)
+                else {
     
-                        this._links.set(k, attrs._links[k]);
-    
-                    }
+                    this._links.set(attrs._links);
     
                 }
     
             }
     
+            // If HAL embedded resources are declared
             if(attrs._embedded) {
     
+                // This is the first time we set an embedded resource on this HAL Model
                 if(!this._embedded) {
     
                     this._embedded = new Hal.Embedded(attrs._embedded);
     
-                } else {
-    
-                    for(k in attrs._embedded) {
-    
-                        this._embedded.set(k, attrs._embedded[k]);
-    
-                    }
-    
                 }
     
+                // This is not the first time we set an embedded resource on this HAL Model (i.e this is an update)
+                else {
+    
+                    this._embedded.set(attrs._embedded);
+    
+                }
     
             }
     

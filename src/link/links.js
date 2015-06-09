@@ -9,25 +9,6 @@
 Hal.Links = Backbone.Model.extend(
     {
         /**
-         * Function used to initialize the links.
-         *
-         * @param {Object} options Options used to initialize the links.
-         */
-        initialize : function(options) {
-
-            _.map(
-                options,
-                function(link, rel) {
-
-                    this.set(rel, _.isArray(link) ? new Hal.LinkArray(link) : new Hal.Link(link));
-
-                },
-                this
-            );
-
-        },
-
-        /**
          * Utility function used to get the `self` link.
          *
          * @return {Hal.Link} The self link.
@@ -48,6 +29,80 @@ Hal.Links = Backbone.Model.extend(
             var self = this.getSelf();
 
             return !(_.isNull(self) || _.isUndefined(self));
+
+        },
+
+        /**
+         * Set a hash of model attributes on the object, firing `"change"`. This is the core primitive operation of a
+         * model, updating the data and notifying anyone who needs to know about the change in state. The heart of the
+         * beast.
+         *
+         * @param {Object | String} A Javascript containing multiple key / value pairs to set or the name of a property
+         *        to set.
+         * @param {String | *} The value to associated to a key if the first parameter is a key, options otherwise.
+         * @param {Object} options Options to be used when the first parameter is a key and the second one a value.
+         *
+         * @return {Hal.Model} This.
+         */
+        set: function(key, val, options) {
+
+            var attrs;
+
+            if (key === null) {
+
+                return this;
+
+            }
+
+            // Handle both `"key", value` and `{key: value}` -style arguments.
+            if (typeof key === 'object') {
+
+                attrs = key;
+                options = val;
+
+            } else {
+
+                (attrs = {})[key] = val;
+
+            }
+
+            _.map(
+                attrs,
+                function(link, rel) {
+
+                    // If the provided element is already a Hal.Link we set it directly
+                    if(link instanceof Hal.Link) {
+
+                        Backbone.Model.prototype.set.call(this, rel, link);
+
+                    }
+
+                    // Otherwise if the provided element is an array
+                    else if(_.isArray(link)) {
+
+                        Backbone.Model.prototype.set.call(this, rel, new Hal.LinkArray(link));
+
+                    }
+
+                    // Otherwise if the provided element is an object
+                    else if(_.isObject(link)) {
+
+                        Backbone.Model.prototype.set.call(this, rel, new Hal.Link(link));
+
+                    }
+
+                    // Otherwise this is an error
+                    else {
+
+                        throw new Error('Invalid link identified by \'rel\'=\'' + rel + '\' !');
+
+                    }
+
+                },
+                this
+            );
+
+            return this;
 
         },
 
