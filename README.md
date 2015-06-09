@@ -407,6 +407,9 @@ have been named to be similar to the Backbone `get(...)`, `set(...)`, `has(...)`
 
 ## Release History 
 
+### 0.1.0-alpha8
+ * Fix a bug in the `toJSON()` method, the `contentType` option was not propagated to embedded resources.
+
 ### 0.1.0-alpha7
  * Allow the `toJSON()` method to take a `contentType` option to configure how to serialize a resource, this is useful 
    when you when to serialize an HAL resource to persist it in the local storage for example.

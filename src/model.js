@@ -130,6 +130,8 @@ Hal.Model = Backbone.Model.extend({
      * Function used to convert this model into a Javascript object to be passed to `JSON.stringify(obj)`.
      *
      * @param {Object} options Options used to configure the behavior of the function.
+     * @param {String} options.contentType (Optional) A content type to be used to create the representation, currently
+     *        the method accepts 'application/json' (the default one) or 'application/hal+json'.
      *
      * @return {Object} The resulting object which MUST BE compliant with HAL.
      */
@@ -144,7 +146,7 @@ Hal.Model = Backbone.Model.extend({
         // If the 'Content-Type' must be 'application/json'
         if(contentType === 'application/json') {
 
-            cloned = _.extend(this.attributes, this.getEmbedded().toJSON());
+            cloned = _.extend(this.attributes, this.getEmbedded().toJSON(_options));
 
         }
 
@@ -161,14 +163,14 @@ Hal.Model = Backbone.Model.extend({
             // The Hal.Model has no '_links' and has at least one '_embedded' property
             else if(noLinks) {
 
-                cloned = _.extend(this.attributes, {'_embedded' : this.getEmbedded().toJSON()});
+                cloned = _.extend(this.attributes, {'_embedded' : this.getEmbedded().toJSON(_options)});
 
             }
 
             // The Hal.Model has at least one link and no embedded resources
             else if(noEmbedded) {
 
-                cloned = _.extend(this.attributes, {'_links' : this.getLinks().toJSON()});
+                cloned = _.extend(this.attributes, {'_links' : this.getLinks().toJSON(_options)});
 
             }
 
@@ -178,8 +180,8 @@ Hal.Model = Backbone.Model.extend({
                 cloned = _.extend(
                     _.clone(this.attributes),
                     {
-                        '_embedded' : this.getEmbedded().toJSON(),
-                        '_links' : this.getLinks().toJSON()
+                        '_embedded' : this.getEmbedded().toJSON(_options),
+                        '_links' : this.getLinks().toJSON(_options)
                     }
                 );
 

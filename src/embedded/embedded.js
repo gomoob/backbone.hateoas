@@ -199,25 +199,31 @@ Hal.Embedded = Backbone.Model.extend(
         /**
          * Function used to convert this `_embedded` into a Javascript object to be passed to `JSON.stringify(obj)`.
          *
+         * @param {Object} options (Optional) Options used to configure the behavior of the method.
+         * @param {String} options.contentType (Optional) A content type to be used to create the representation, currently
+         *        the method accepts 'application/json' (the default one) or 'application/hal+json'.
+         *
          * @return {Object} The resulting object which MUST BE compliant with HAL.
          */
-        toJSON : function() {
+        toJSON : function(options) {
 
-            var json = {};
+            var json = {},
+                _options = options || {},
+                contentType = _options.contentType || Hal.contentType || 'application/json';
 
             for(var rel in this.attributes) {
 
                 var resource = this.attributes[rel];
 
                 // If the embedded resource is an array then we convert each object
-                // FIXME: Ici il faut pouvoir serialiser les collections Backbone également...
+                // FIXME: Ici il faut pouvoir serialiser les collections Backbone également ?
                 if(_.isArray(resource)) {
 
                     json[rel] = [];
 
                     for(var i = 0; i < resource.length; ++i) {
 
-                        json[rel].push(resource[i].toJSON());
+                        json[rel].push(resource[i].toJSON(_options));
 
                     }
 
@@ -226,7 +232,7 @@ Hal.Embedded = Backbone.Model.extend(
                 // Otherwise we expect a Hal.Model
                 else {
 
-                    json[rel] = this.attributes[rel].toJSON();
+                    json[rel] = this.attributes[rel].toJSON(_options);
 
                 }
 
