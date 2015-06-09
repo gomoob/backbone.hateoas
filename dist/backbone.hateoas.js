@@ -699,25 +699,6 @@
      */
     Hal.Links = Backbone.Model.extend(
         {
-    //        /**
-    //         * Function used to initialize the links.
-    //         *
-    //         * @param {Object} options Options used to initialize the links.
-    //         */
-    //        initialize : function(options) {
-    //
-    //            _.map(
-    //                options,
-    //                function(link, rel) {
-    //
-    //                    this.set(rel, _.isArray(link) ? new Hal.LinkArray(link) : new Hal.Link(link));
-    //
-    //                },
-    //                this
-    //            );
-    //
-    //        },
-    
             /**
              * Utility function used to get the `self` link.
              *
