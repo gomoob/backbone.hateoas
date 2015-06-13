@@ -2,6 +2,7 @@
     "name": "backbone.hateoas",
     "description" : "Easy use of HAL in your Backbone application.",
     "version" : "0.1.0-alpha9",
+    "license": "MIT",
     "homepage": "https://github.com/gomoob/backbone.hateoas",
     "authors": [
         {
@@ -14,10 +15,12 @@
         }
     ],
     "keywords" : [
-        "backbone", 
-        "hal",
-        "hateoas",
-        "gomoob"  
+        "backbone",
+	    "marionette", 
+	    "hal",
+	    "hateoas",
+	    "REST",
+	    "gomoob" 
     ],
     "main" : [
         "dist/backbone.hateoas.min.js"
