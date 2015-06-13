@@ -13,12 +13,16 @@
     "marionette", 
     "hal",
     "hateoas",
+    "REST",
     "gomoob"
   ],
   "main": "dist/backbone.hateoas.min.js",
   "scripts": {
     "test": "grunt",
     "coverage": "grunt coverage"
+  },
+  "bugs": {
+    "url": "https://github.com/gomoob/backbone.hateoas/issues"
   },
   "repository": {
     "type": "git",
