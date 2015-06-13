@@ -407,6 +407,9 @@ have been named to be similar to the Backbone `get(...)`, `set(...)`, `has(...)`
 
 ## Release History 
 
+### 0.1.0-alpha9
+ * Implement the `clone()` method for `Hal.Model`
+
 ### 0.1.0-alpha8
  * Fix a bug in the `toJSON()` method, the `contentType` option was not propagated to embedded resources.
 

@@ -4,6 +4,419 @@ describe(
     'Hal.Model',
     function() {
 
+        describe('clone', function() {
+
+            it('With an empty model', function() {
+
+                var model = new Hal.Model(),
+                clonedModel = model.clone();
+
+                // The 2 object must not be the same
+                expect(model.cid).to.not.equal(clonedModel.cid);
+
+                // The first model does not contain any attribute
+                expect(model.attributes).to.be.empty;
+                expect(model.getEmbedded().attributes).to.be.empty;
+                expect(model.getLinks().attributes).to.be.empty;
+
+                // The cloned model does not contain any attribute
+                expect(clonedModel.attributes).to.be.empty;
+                expect(clonedModel.getEmbedded().attributes).to.be.empty;
+                expect(clonedModel.getLinks().attributes).to.be.empty;
+
+            });
+
+            it('With simple properties and links and no _embedded', function() {
+
+                var model = new Hal.Model(
+                    {
+                        firstName : 'Baptiste',
+                        lastName : 'Gaillard',
+                        _links : {
+                            friends : [
+                                {
+                                    href: 'http://myserver.com/api/users/2'
+                                },
+                                {
+                                    href: 'http://myserver.com/api/users/3'
+                                }
+                            ],
+                            self : {
+                                href: 'http://myserver.com/api/users/1'
+                            }
+                        }
+                    }
+                ),
+                clonedModel = model.clone();
+
+                // The 2 object must not be the same
+                expect(model.cid).to.not.equal(clonedModel.cid);
+
+                // The first model does not contain any attribute
+                expect(Object.keys(model.attributes)).to.have.length(2);
+                expect(model.attributes.firstName).to.equal('Baptiste');
+                expect(model.attributes.lastName).to.equal('Gaillard');
+                expect(model.getEmbedded().attributes).to.be.empty;
+                expect(Object.keys(model.getLinks().attributes)).to.have.length(2);
+                expect(JSON.stringify(model.getLinks().attributes.friends.toJSON())).to.equal(JSON.stringify([
+                    {
+                        href: 'http://myserver.com/api/users/2'
+                    },
+                    {
+                        href: 'http://myserver.com/api/users/3'
+                    }
+                ]));
+                expect(JSON.stringify(model.getLinks().attributes.self.toJSON())).to.equal(JSON.stringify({
+                    href: 'http://myserver.com/api/users/1'
+                }));
+
+                // The cloned model does not contain any attribute
+                expect(Object.keys(clonedModel.attributes)).to.have.length(2);
+                expect(clonedModel.attributes.firstName).to.equal('Baptiste');
+                expect(clonedModel.attributes.lastName).to.equal('Gaillard');
+                expect(clonedModel.getEmbedded().attributes).to.be.empty;
+                expect(Object.keys(clonedModel.getLinks().attributes)).to.have.length(2);
+                expect(JSON.stringify(clonedModel.getLinks().attributes.friends.toJSON())).to.equal(JSON.stringify([
+                    {
+                        href: 'http://myserver.com/api/users/2'
+                    },
+                    {
+                        href: 'http://myserver.com/api/users/3'
+                    }
+                ]));
+                expect(JSON.stringify(clonedModel.getLinks().attributes.self.toJSON())).to.equal(JSON.stringify({
+                    href: 'http://myserver.com/api/users/1'
+                }));
+
+            });
+
+            it('With simple properties and no links and _embedded', function() {
+
+                var model = new Hal.Model(
+                    {
+                        firstName : 'Baptiste',
+                        lastName : 'Gaillard',
+                        _embedded : {
+                            address : {
+                                city : 'Paris',
+                                country : 'France',
+                                street : '142 Rue de Rivoli',
+                                zip : '75001',
+                                _links : {
+                                    self : {
+                                        href : 'http://myserver.com/api/addresses/1'
+                                    }
+                                }
+                            },
+                            friends : [
+                                {
+                                    firstName : 'Simon',
+                                    lastName : 'Baudry',
+                                    _links : {
+                                        self : {
+                                            href: 'http://myserver.com/api/users/2'
+                                        }
+                                    }
+                                },
+                                {
+                                    firstName : 'John',
+                                    lastName : 'Doe',
+                                    _links : {
+                                        self : {
+                                            href: 'http://myserver.com/api/users/3'
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ),
+                clonedModel = model.clone();
+
+                // The 2 object must not be the same
+                expect(model.cid).to.not.equal(clonedModel.cid);
+
+                // Checks the first model
+                expect(Object.keys(model.attributes)).to.have.length(2);
+                expect(model.attributes.firstName).to.equal('Baptiste');
+                expect(model.attributes.lastName).to.equal('Gaillard');
+                expect(model.getLinks().attributes).to.be.empty;
+                expect(Object.keys(model.getEmbedded().attributes)).to.have.length(2);
+                expect(
+                    JSON.stringify(model.getEmbedded('address').toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(model.getEmbedded('friends')).to.have.length(2);
+                expect(
+                    JSON.stringify(model.getEmbedded('friends')[0].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'Simon',
+                            lastName : 'Baudry',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/2'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(
+                    JSON.stringify(model.getEmbedded('friends')[1].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'John',
+                            lastName : 'Doe',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/3'
+                                }
+                            }
+                        }
+                    )
+                );
+
+                // Checks the cloned model
+                expect(Object.keys(clonedModel.attributes)).to.have.length(2);
+                expect(clonedModel.attributes.firstName).to.equal('Baptiste');
+                expect(clonedModel.attributes.lastName).to.equal('Gaillard');
+                expect(clonedModel.getLinks().attributes).to.be.empty;
+                expect(Object.keys(clonedModel.getEmbedded().attributes)).to.have.length(2);
+                expect(
+                    JSON.stringify(clonedModel.getEmbedded('address').toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(clonedModel.getEmbedded('friends')).to.have.length(2);
+                expect(
+                    JSON.stringify(clonedModel.getEmbedded('friends')[0].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'Simon',
+                            lastName : 'Baudry',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/2'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(
+                    JSON.stringify(clonedModel.getEmbedded('friends')[1].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'John',
+                            lastName : 'Doe',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/3'
+                                }
+                            }
+                        }
+                    )
+                );
+
+            });
+
+            it('With simple properties and links and _embedded', function() {
+
+                var model = new Hal.Model({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard',
+                    _embedded : {
+                        address : {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        },
+                        friends : [
+                            {
+                                firstName : 'Simon',
+                                lastName : 'Baudry',
+                                _links : {
+                                    self : {
+                                        href: 'http://myserver.com/api/users/2'
+                                    }
+                                }
+                            },
+                            {
+                                firstName : 'John',
+                                lastName : 'Doe',
+                                _links : {
+                                    self : {
+                                        href: 'http://myserver.com/api/users/3'
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    _links : {
+                        self: {
+                            href : 'http://myserver.com/api/users/1'
+                        }
+                    }
+                }),
+                clonedModel = model.clone();
+
+                // The 2 object must not be the same
+                expect(model.cid).to.not.equal(clonedModel.cid);
+
+                // Checks the first model
+                expect(Object.keys(model.attributes)).to.have.length(2);
+                expect(model.attributes.firstName).to.equal('Baptiste');
+                expect(model.attributes.lastName).to.equal('Gaillard');
+                expect(Object.keys(model.getLinks().attributes)).to.have.length(1);
+                expect(JSON.stringify(model.getLinks().attributes.self.toJSON())).to.equal(JSON.stringify({
+                    href : 'http://myserver.com/api/users/1'
+                }));
+                expect(Object.keys(model.getEmbedded().attributes)).to.have.length(2);
+                expect(
+                    JSON.stringify(model.getEmbedded('address').toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(model.getEmbedded('friends')).to.have.length(2);
+                expect(
+                    JSON.stringify(model.getEmbedded('friends')[0].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'Simon',
+                            lastName : 'Baudry',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/2'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(
+                    JSON.stringify(model.getEmbedded('friends')[1].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'John',
+                            lastName : 'Doe',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/3'
+                                }
+                            }
+                        }
+                    )
+                );
+
+                // Checks the cloned model
+                expect(Object.keys(clonedModel.attributes)).to.have.length(2);
+                expect(clonedModel.attributes.firstName).to.equal('Baptiste');
+                expect(clonedModel.attributes.lastName).to.equal('Gaillard');
+                expect(Object.keys(clonedModel.getLinks().attributes)).to.have.length(1);
+                expect(JSON.stringify(clonedModel.getLinks().attributes.self.toJSON())).to.equal(JSON.stringify({
+                    href : 'http://myserver.com/api/users/1'
+                }));
+                expect(Object.keys(clonedModel.getEmbedded().attributes)).to.have.length(2);
+                expect(
+                    JSON.stringify(clonedModel.getEmbedded('address').toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(clonedModel.getEmbedded('friends')).to.have.length(2);
+                expect(
+                    JSON.stringify(clonedModel.getEmbedded('friends')[0].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'Simon',
+                            lastName : 'Baudry',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/2'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(
+                    JSON.stringify(clonedModel.getEmbedded('friends')[1].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'John',
+                            lastName : 'Doe',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/3'
+                                }
+                            }
+                        }
+                    )
+                );
+
+            });
+
+        });
+
         describe('initialize', function() {
 
             it('With no parameters should succeed', function() {

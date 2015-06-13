@@ -29,7 +29,22 @@ Hal.Model = Backbone.Model.extend({
      */
     _embedded : null,
 
-    // TODO: hasEmbedded(rel)
+    /**
+     * Returns a new instance of the model with identical attributes.
+     *
+     * @return {Hal.Model}
+     */
+    clone : function() {
+
+        return new this.constructor(
+            this.toJSON(
+                {
+                    contentType : 'application/hal+json'
+                }
+            )
+        );
+
+    },
 
     /**
      * Utility function used to get all the `_embedded` resources attached to the model or a specific `_embedded`
@@ -146,7 +161,7 @@ Hal.Model = Backbone.Model.extend({
         // If the 'Content-Type' must be 'application/json'
         if(contentType === 'application/json') {
 
-            cloned = _.extend(this.attributes, this.getEmbedded().toJSON(_options));
+            cloned = _.extend({}, this.attributes, this.getEmbedded().toJSON(_options));
 
         }
 
@@ -163,14 +178,14 @@ Hal.Model = Backbone.Model.extend({
             // The Hal.Model has no '_links' and has at least one '_embedded' property
             else if(noLinks) {
 
-                cloned = _.extend(this.attributes, {'_embedded' : this.getEmbedded().toJSON(_options)});
+                cloned = _.extend({}, this.attributes, {'_embedded' : this.getEmbedded().toJSON(_options)});
 
             }
 
             // The Hal.Model has at least one link and no embedded resources
             else if(noEmbedded) {
 
-                cloned = _.extend(this.attributes, {'_links' : this.getLinks().toJSON(_options)});
+                cloned = _.extend({}, this.attributes, {'_links' : this.getLinks().toJSON(_options)});
 
             }
 

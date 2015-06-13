@@ -9,12 +9,17 @@
     "url": "http://www.gomoob.com"
   },
   "keywords": [
-    "backbone", 
+    "backbone",
+    "marionette", 
     "hal",
     "hateoas",
-    "gomoob"  
+    "gomoob"
   ],
   "main": "dist/backbone.hateoas.min.js",
+  "scripts": {
+    "test": "grunt",
+    "coverage": "grunt coverage"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/gomoob/backbone.hateoas"
