@@ -202,20 +202,28 @@ module.exports = function(grunt) {
         'Generate coverage report for the library',
         function() {
 
+            // The Grunt tasks to run
+            var tasks = [
+                'jshint:src',
+                'jshint:test',
+                'instrument',
+                'mochaTest',
+                'storeCoverage',
+                'makeReport'
+            ];
+
             // For coverage our source directory is 'reports/coverage/src'
             process.env.srcDir = require('path').resolve(__dirname, 'reports/coverage/src');
 
-            grunt.task.run(
-                [
-                    'jshint:src',
-                    'jshint:test',
-                    'instrument',
-                    'mochaTest',
-                    'storeCoverage',
-                    'makeReport',
-                    'coveralls'
-                ]
-            );
+            // If the 'publish-to-coveralls' option is configured add the 'coveralls' task
+            if(grunt.option('publish-to-coveralls')) {
+
+                tasks.push('coveralls');
+
+            }
+
+            // Execute the Grunt tasks
+            grunt.task.run(tasks);
 
         }
     );

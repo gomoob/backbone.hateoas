@@ -20,7 +20,8 @@
   "main": "dist/backbone.hateoas.min.js",
   "scripts": {
     "test": "grunt",
-    "coverage": "grunt coverage"
+    "coverage": "grunt coverage",
+    "coverage-coveralls": "grunt coverage --publish-to-coveralls"
   },
   "bugs": {
     "url": "https://github.com/gomoob/backbone.hateoas/issues"
