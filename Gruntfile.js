@@ -16,6 +16,19 @@ module.exports = function(grunt) {
         clean : ['tmp/**/*'],
 
         /**
+         * Coveralls Task.
+         */
+        coveralls: {
+            options: {
+                src: 'reports/coverage/lcov.info',
+                force: false
+            },
+            'default': {
+                src: 'reports/coverage/lcov.info'
+            }
+        },
+
+        /**
          * Instrument Task.
          */
         instrument : {
@@ -199,7 +212,8 @@ module.exports = function(grunt) {
                     'instrument',
                     'mochaTest',
                     'storeCoverage',
-                    'makeReport'
+                    'makeReport',
+                    'coveralls'
                 ]
             );
 
