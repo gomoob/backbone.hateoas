@@ -417,6 +417,81 @@ describe(
 
         });
 
+        describe('hasEmbedded', function() {
+
+            it('With an empty model', function() {
+
+                var model = new Hal.Model();
+
+                expect(model.hasEmbedded('rel1')).to.be.false;
+                expect(model.hasEmbedded('rel2')).to.be.false;
+                expect(model.hasEmbedded('rel3')).to.be.false;
+
+            });
+
+            it('With a not empty model', function() {
+
+                var model = new Hal.Model({
+                    firstName : 'John',
+                    lastName : 'Doe',
+                    _embedded : {
+                        rel1 : {
+                            prop1 : 'prop1_value',
+                            prop2 : 'prop2_value'
+                        },
+                        rel2 : null,
+                        rel3 : undefined
+                    }
+                });
+
+                expect(model.hasEmbedded('rel1')).to.be.true;
+                expect(model.hasEmbedded('rel2')).to.be.false;
+                expect(model.hasEmbedded('rel3')).to.be.false;
+
+            });
+
+        });
+
+        describe('hasLink', function() {
+
+            it('With an empty model', function() {
+
+                var model = new Hal.Model();
+
+                expect(model.hasLink('rel1')).to.be.false;
+                expect(model.hasLink('rel2')).to.be.false;
+                expect(model.hasLink('rel3')).to.be.false;
+
+            });
+
+            it('With a not empty model', function() {
+
+                var model = new Hal.Model({
+                    firstName : 'John',
+                    lastName : 'Doe',
+                    _links : {
+                        rel1 : {
+                            href: 'http://myserver.com/api/users/1'
+                        }
+                        /* Set it after fixing issue 8
+                         *
+                         * @see https://github.com/gomoob/backbone.hateoas/issues/8
+                        ,
+                        rel2 : null,
+                        rel3 : undefined
+                        */
+                    }
+                });
+
+                expect(model.hasLink('rel1')).to.be.true;
+                expect(model.hasLink('rel2')).to.be.false;
+                expect(model.hasLink('rel3')).to.be.false;
+                expect(model.hasLink('rel4')).to.be.false;
+
+            });
+
+        });
+
         describe('initialize', function() {
 
             it('With no parameters should succeed', function() {

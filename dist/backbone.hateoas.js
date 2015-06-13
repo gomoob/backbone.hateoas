@@ -891,6 +891,37 @@
         },
     
         /**
+         * Utility function used to check if this HAL model is linked to an `embedded` resource specified with a relation
+         * type.
+         *
+         * @param {String} rel (Optional) The name of a relation type used to check for the existence of an embedded
+         *        resource.
+         *
+         * @return {Boolean} True if this HAL model is linked to an `_embedded` resource specified with the `rel` relation
+         *         type, false otherwise.
+         */
+        hasEmbedded : function(rel) {
+    
+            return this._embedded.has(rel);
+    
+        },
+    
+        /**
+         * Utility function used to check if this HAL model is linked to a specific `link` identified by a specified
+         * relation type.
+         *
+         * @param {String} rel (Optional) The name of a relation type used to check for the existence of a link.
+         *
+         * @return {Boolean} True if this HAL model is linked to link specified with the `rel` relation type, false
+         *         otherwise.
+         */
+        hasLink : function(rel) {
+    
+            return this._links.has(rel);
+    
+        },
+    
+        /**
          * Utility function used to get all the `_embedded` resources attached to the model or a specific `_embedded`
          * resource.
          *
@@ -907,6 +938,30 @@
             }
     
             return ret;
+    
+        },
+    
+        /**
+         * Utility function used to get a HAL link by relation name.
+         *
+         * @param {String} rel The name of the relation used to retrieve the link.
+         *
+         * @retunr {Hal.Link | Hal.LinkArray} A link a link array associated to the relation name.
+         */
+        getLink : function(rel) {
+    
+            return this.getLinks().get(rel);
+    
+        },
+    
+        /**
+         * Utility function used to retrieve all the associated HAL links.
+         *
+         * @return {Hal.Links} An object which represents the HAL links associated to this model.
+         */
+        getLinks : function() {
+    
+            return this._links;
     
         },
     
@@ -936,30 +991,6 @@
         },
     
         /**
-         * Utility function used to get a HAL link by relation name.
-         *
-         * @param {String} rel The name of the relation used to retrieve the link.
-         *
-         * @retunr {Hal.Link | Hal.LinkArray} A link a link array associated to the relation name.
-         */
-        getLink : function(rel) {
-    
-            return this.getLinks().get(rel);
-    
-        },
-    
-        /**
-         * Utility function used to retrieve all the associated HAL links.
-         *
-         * @return {Hal.Links} An object which represents the HAL links associated to this model.
-         */
-        getLinks : function() {
-    
-            return this._links;
-    
-        },
-    
-        /**
          * Function used to initialize the view.
          *
          * @param {Object} options Options used to initialize the view.
@@ -970,18 +1001,10 @@
             // before calling initialize. The `_links` can be set before initialize when the Hal.Model is directly
             // initialized with `_links`. Please also note that initializing the links in the `set(key, value, options)`
             // method is better because it will also be called on `fetch()`.
-            if(!this._links) {
-    
-                this._links = new Hal.Links();
-    
-            }
+            this._links = this._links || new Hal.Links();
     
             // This check is here for the same reasons as the previous condition
-            if(!this._embedded) {
-    
-                this._embedded = new Hal.Embedded();
-    
-            }
+            this._embedded = this._embedded || new Hal.Embedded();
     
         },
     

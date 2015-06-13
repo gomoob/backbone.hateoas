@@ -411,7 +411,9 @@ have been named to be similar to the Backbone `get(...)`, `set(...)`, `has(...)`
 ## Release History 
 
 ### 0.1.0-alpha9
+ * Implement `hasEmbedded(rel)` and `hasLink(rel)` methods on the `Hal.Model` class
  * Implement the `clone()` method for `Hal.Model`
+ * Setup Travis builds
 
 ### 0.1.0-alpha8
  * Fix a bug in the `toJSON()` method, the `contentType` option was not propagated to embedded resources.
