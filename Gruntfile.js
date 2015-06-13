@@ -9,7 +9,7 @@ module.exports = function(grunt) {
          * Reads the 'package.json' file and puts its content into a 'pkg' Javascript object.
          */
         pkg : grunt.file.readJSON('package.json'),
-        
+
         /**
          * Clean task.
          */
@@ -21,13 +21,13 @@ module.exports = function(grunt) {
         instrument : {
             files : [
                 'src/**/*.js'
-            ], 
+            ],
             options : {
                 lazy : true,
                 basePath : 'reports/coverage'
             }
         },
-        
+
         /**
          * JSDoc Task.
          */
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
                 src: [
                     'jsdoc/README.md',
                     'src/**/*.js'
-                ], 
+                ],
                 options: {
                     configure : 'jsdoc/jsdoc.conf.json',
                     destination: 'tmp/jsdoc',
@@ -45,7 +45,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        
+
         /**
          * JSHint Task.
          */
@@ -62,7 +62,7 @@ module.exports = function(grunt) {
                 ]
             }
         },
-        
+
         /**
          * Make Report Task.
          */
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
                 print: 'detail'
             }
         },
-        
+
         /**
          * Mocha Test Task.
          */
@@ -91,7 +91,7 @@ module.exports = function(grunt) {
                 ]
             }
         },
-        
+
         /**
          * Plato code analysis Task.
          */
@@ -102,17 +102,17 @@ module.exports = function(grunt) {
                 }
             }
         },
-        
+
         /**
          * Configures task used to pre process files
          */
-        preprocess : {  
+        preprocess : {
             lib : {
                 src : 'src/umd-wrapper.js',
                 dest : 'dist/backbone.hateoas.js'
             }
-        }, 
-        
+        },
+
         /**
          * Store coverage Task.
          */
@@ -121,11 +121,11 @@ module.exports = function(grunt) {
                 dir: 'reports/coverage'
             }
         },
-        
+
         /**
          * Task used to minify the library.
          */
-        uglify: {   
+        uglify: {
             lib: {
                 src: 'dist/backbone.hateoas.js',
                 dest: 'dist/backbone.hateoas.min.js',
@@ -134,7 +134,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        
+
         /**
          * Watch Task.
          */
@@ -152,7 +152,7 @@ module.exports = function(grunt) {
 
     // This has to be done before calling 'initConfig' (see https://github.com/sindresorhus/time-grunt)
     require('time-grunt')(grunt);
-    
+
     // Initialize the Grunt Configuration
     grunt.initConfig(gruntConfiguration);
 
@@ -163,18 +163,18 @@ module.exports = function(grunt) {
      * Task used to execute the unit tests of the project.
      */
     grunt.registerTask(
-        'test', 
+        'test',
         'Test the library',
         function() {
 
             process.env.srcDir = require('path').resolve(__dirname, 'src');
-            
+
             grunt.task.run(
                 [
                     'jshint:src',
                     'jshint:test',
-                    'preprocess', 
-                    'mochaTest' 
+                    'preprocess',
+                    'mochaTest'
                 ]
             );
 
@@ -185,8 +185,8 @@ module.exports = function(grunt) {
      * Task used to generate a coverage report.
      */
     grunt.registerTask(
-        'coverage', 
-        'Generate coverage report for the library', 
+        'coverage',
+        'Generate coverage report for the library',
         function() {
 
             // For coverage our source directory is 'reports/coverage/src'
@@ -210,7 +210,7 @@ module.exports = function(grunt) {
      * Task used to build the library.
      */
     grunt.registerTask(
-        'build', 
+        'build',
         'Build the library',
         [
             'test',
@@ -225,8 +225,6 @@ module.exports = function(grunt) {
         'default',
         [
             'clean',
-            'coverage',
-            'plato',
             'build'
         ]
     );
