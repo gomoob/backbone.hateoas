@@ -3,7 +3,7 @@
 [![Travis Build Status](http://img.shields.io/travis/gomoob/backbone.hateoas.svg?style=flat)](https://travis-ci.org/gomoob/backbone.hateaos)
 [![Coverage Status](https://img.shields.io/coveralls/gomoob/backbone.hateoas.svg?branch=master&style=flat)](https://coveralls.io/r/gomoob/backbone.hateoas?branch=master)
 
-> A library to use HAL and HATEOAS in your Backbone and Marionette applications.
+> Use HAL and HATEOAS in your Backbone and Marionette applications !
 
 **backbone.hateoas** is a Javascript library which facilitates the use of the HAL (*Hypermedia Application Language*) 
 standard in your application.
