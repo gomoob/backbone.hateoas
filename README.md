@@ -83,3 +83,19 @@ respective owners:
 * css/bootstrap.min.css - [bootstrap](http://getbootstrap.com)
 * js/jquery.min.js - [jquery](https://jquery.com)
 * images/cc_by_88x31.png - [creative commons](https://creativecommons.org)
+
+
+
+# Update the theme
+
+The theme is based on Jekyll Clean, the following remote has been added to simplify update of this theme : 
+```
+git remote add jekyll-clean git@github.com:scotte/jekyll-clean.git
+```
+
+So to get the last updates of the theme execute the following commands and resolve the conflicts : 
+```
+git checkout gh-pages
+git fetch jekyll-clean
+git merge jekyll-clean/gh-pages
+```
