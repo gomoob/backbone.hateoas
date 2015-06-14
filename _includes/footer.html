@@ -1,9 +1,8 @@
 <div class="container-fluid">
     <div class="row-fluid">
         <div class="span12 footer navbar-inverse navbar-fixed-bottom">
-            <p class="copyright">&copy;{{ site.time | date: '%Y' }} {{ site.name }}. Powered by <a href="http://jekyllrb.com">Jekyll</a>, theme by <a href="https://github.com/scotte/jekyll-clean">Scott Emmons</a>
-            under
-            <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution</a></p>
+            <p class="copyright">&copy;{{ site.time | date: '%Y' }} GOMOOB SARL. 
+            Powered by <a href="http://gomoob.com" target="blank">GoMoob</a>
         </div>
     </div>
 </div>
@@ -11,5 +10,8 @@
 {% include disqus-counts.html %}
 {% include analytics.html %}
 
+    <script src="{{ site.baseurl }}/js/jquery.min.js"></script>
+    <script src="{{ site.baseurl }}/js/bootstrap.min.js"></script>
+    <script src="{{ site.baseurl }}/js/material.min.js"></script>
 </body>
 </html>

@@ -1,16 +1,108 @@
-<div class="sidebar well">
-{{ site.description }}
-</div>
+<br/>
 
 <div class="sidebar well">
-    <h1>Recent Posts</h1>
-    <ul>
-        {% for post in site.posts limit:5 %}
-          <li><a href="{{ site.baseurl}}{{ post.url }}">{{ post.title }}</a></li>
-        {% endfor %}
-    </ul>
-</div>
-
-<div class="sidebar well">
-{% include links-list.html %}
+	<ul class="list-group">
+	    <li class="list-group-item">
+	        <div class="row-content">
+	            <h4 class="list-group-item-heading">
+	                <a href="#getting-started">Getting Started</a>
+	            </h4>
+	            <ul>
+	                <li>
+	                    <h5><a href="#hateoas">HATEOAS</a></h5>
+	                </li>
+	                <li>
+	                    <h5><a href="#hal">HAL</a></h5>
+	                </li>
+	            </ul>
+	        </div>
+	    </li>
+	    <li class="list-group-item">
+            <div class="row-content">
+                <h4 class="list-group-item-heading">
+                    <a href="#global-configuration">Global configuration</a>
+                </h4>
+                <ul>
+                    <li>
+                        <h5><a href="#content-type">contentType</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#url-root">urlRoot</a></h5>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="row-content">
+                <h4 class="list-group-item-heading">
+                    <a href="#hal.model">Hal.Model</a>
+                </h4>
+                <ul>
+                    <li>
+                        <h5><a href="#url-middle">urlMiddle</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#to-json">toJSON</a></h5>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="row-content">
+                <h4 class="list-group-item-heading">
+                    <a href="#hal.collection">Hal.Collection</a>
+                </h4>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="row-content">
+                <h4 class="list-group-item-heading">
+                    <a href="#embedded">Embedded</a>
+                </h4>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="row-content">
+                <h4 class="list-group-item-heading">
+                    <a href="#links">Links</a>
+                </h4>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="row-content">
+                <h4 class="list-group-item-heading">
+                    <a href="#links">Release history</a>
+                </h4>
+                <ul>
+                    <li>
+                        <h5><a href="#0.1.0-alpha9">0.1.0-alpha9</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#0.1.0-alpha8">0.1.0-alpha8</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#0.1.0-alpha7">0.1.0-alpha7</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#0.1.0-alpha6">0.1.0-alpha6</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#0.1.0-alpha5">0.1.0-alpha5</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#0.1.0-alpha4">0.1.0-alpha4</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#0.1.0-alpha3">0.1.0-alpha3</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#0.1.0-alpha2">0.1.0-alpha2</a></h5>
+                    </li>
+                    <li>
+                        <h5><a href="#0.1.0-alpha1">0.1.0-alpha1</a></h5>
+                    </li>
+                </ul>
+            </div>
+        </li>
+	</ul>
 </div>

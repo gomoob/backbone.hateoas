@@ -1,0 +1,39 @@
+---
+layout: default
+title: News
+---
+
+<br/>
+
+{% for post in paginator.posts %}
+<div class="article">
+    <div class="panel">
+        <div class="panel-heading">
+            <h1>
+                <a href="{{ site.baseurl}}{{ post.url }}">{{ post.title }}</a>
+            </h1>
+            <p>{{ post.date | date: "%b %-d, %Y" }}</p>
+            {% if site.comments == true and post.comments == true and site.disqus != '' %}
+                <p class="author"><a href="{{ site.baseurl }}{{ post.url }}/#disqus_thread">Comments</a></p>
+            {% endif %}
+        </div>
+        <div class="panel-body">
+            {{ post.excerpt }}
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<div class="pagination">
+  {% if paginator.previous_page %}
+      {% if paginator.previous_page == 1 %}
+        <a class="btn btn-default" href="{{ site.baseurl}}/index.html" class="previous">Newer</a>
+      {% else %}
+        <a class="btn btn-default" href="{{ site.baseurl}}/page{{ paginator.previous_page }}" class="previous">Newer</a>
+      {% endif %}
+  {% endif %}
+  <span class="page_number ">Page: {{ paginator.page }} of {{ paginator.total_pages }}</span>
+  {% if paginator.next_page %}
+    <a class="btn btn-default" href="{{ site.baseurl}}/page{{ paginator.next_page }}" class="next">Older</a>
+  {% endif %}
+</div>

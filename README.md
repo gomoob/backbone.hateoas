@@ -84,9 +84,20 @@ respective owners:
 * js/jquery.min.js - [jquery](https://jquery.com)
 * images/cc_by_88x31.png - [creative commons](https://creativecommons.org)
 
+# Updating the site
 
+## Start a local server
 
-# Update the theme
+Enter the following commands to install Jekyll and start a local server.
+
+```
+gem install jekyll
+jekyll serve
+```
+
+Then just open [http://localhost:4000/backbone.hateoas](http://localhost:4000/backbone.hateaos).
+
+## Update the theme
 
 The theme is based on Jekyll Clean, the following remote has been added to simplify update of this theme : 
 ```
