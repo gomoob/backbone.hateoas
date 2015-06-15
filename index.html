@@ -8,7 +8,7 @@ layout: default
     <div class="panel">
 	    <div class="panel-body" style="padding: 15px 55px;">
 	        <h1>
-	            <p>backbone.hateoas</p>
+	            backbone.hateoas
 	            <small>HATEOAS with Backbone</small>
 	        </h1>
 	        <p>
@@ -16,9 +16,30 @@ layout: default
 	            <img src="https://img.shields.io/coveralls/gomoob/backbone.hateoas.svg" />
 	            <img src="https://img.shields.io/github/release/gomoob/backbone.hateoas.svg" />
 	        </p>
-            <p>
-	            backbone.hateoas is a Javascript library which facilitates the use of the HAL (Hypertext Application 
-	            Language) standard in your application.
+            <p class="text-justify">
+	            backbone.hateoas is a Javascript library which facilitates the use of 
+	            <a href="https://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> (Hypermedia as the Engine of Application 
+	            State) and the HAL (Hypertext Application Language) standard in your Backbone and Marionette 
+	            applications.
+            </p>
+            <p class="text-justify">
+                To understand what is HATEAOS and what's its place in REST in general we advise you to understand the 
+                <a href="http://martinfowler.com/articles/richardsonMaturityModel.html">Richardson Maturity Model</a>.
+            </p>
+            <p class="text-justify">
+                Today several standards exists to model REST resources - 
+                <a href="http://stateless.co/hal_specification.html">HAL</a>, 
+                <a href="http://www.w3.org/TR/json-ld">JSON-LD</a>, 
+                <a href="http://amundsen.com/media-types/collection/">Collection+JSON</a>, 
+                <a href="https://github.com/kevinswiber/siren">SIREN</a> to name a 
+                few.
+            </p>
+            <p class="text-justify">
+                The HAL specification is quickly described here 
+                <a href="http://stateless.co/hal_specification.html" target="_blank">HAL - Hypertext Application 
+                Language</a>, the JSON version of HAL has also been published as an internet draft here : 
+                <a href="https://tools.ietf.org/html/draft-kelly-json-hal-06" target="_blank">JSON Hypertext Application 
+                Language</a>.
             </p>
             
             <h2>
@@ -27,14 +48,54 @@ layout: default
                 </a>
                 Getting started
             </h2>
-            <h3>The HAL standard</h3>
+            <h3>
+                Install
+            </h3>
             <p>
-                The HAL specification is quickly described here 
-                <a href="http://stateless.co/hal_specification.html" target="_blank">HAL - Hypertext Application 
-                Language</a>, the JSON version of HAL has also been published as an internet draft here : 
-                <a href="https://tools.ietf.org/html/draft-kelly-json-hal-06" target="_blank">JSON Hypertext Application 
-                Language</a>.
+                The easiest way to use the library is to pull it with Bower by adding the following dependency inside 
+                your bower.json file.
             </p>
+<pre><code class="json">{
+    "dependencies": {
+        "backbone.hateoas" : "~0.1"
+    }
+}</code></pre>
+     
+            <h2>
+                Global configuration
+            </h2>
+            <h3>
+                contentType
+            </h3>
+            <h3>
+                urlRoot
+            </h3>
+            
+            <h2>
+                Hal.Model
+            </h2>
+            <h3>
+                urlMiddle
+            </h3>
+            <h3>
+                toJSON
+            </h3>
+            
+            <h2>
+                Hal.Collection
+            </h2>
+            
+            <h2>
+                Embedded
+            </h2>
+            
+            <h2>
+                Links
+            </h2>
+            
+            <h2>
+                Release history
+            </h2>
 	    </div>
     </div>
 </div>
