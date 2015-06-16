@@ -35,6 +35,10 @@ layout: default
                 few.
             </p>
             <p class="text-justify">
+                backbone.hateoas uses the HAL standard because its JSON format is easy to manipulate with Backbone and 
+                because we think its the most used one today.
+            </p>
+            <p class="text-justify">
                 The HAL specification is quickly described here 
                 <a href="http://stateless.co/hal_specification.html" target="_blank">HAL - Hypertext Application 
                 Language</a>, the JSON version of HAL has also been published as an internet draft here : 
@@ -49,18 +53,69 @@ layout: default
                 Getting started
             </h2>
             <h3>
+                Quick presentation
+            </h3>
+            <p class="text-justify">
+                The library provides 2 useful classes, <code>Hal.Model</code> and <code>Hal.Collection</code>.
+            </p>
+            <p>
+                The <code>Hal.Model</code> class extends the <code>Backbone.Model</code> class and adds support to 
+                manipulate HAL links and HAL embedded resources.
+            </p>
+<pre><code class="javascript">
+var user = new Hal.Model({
+    firstName: "John",
+    lastName: "Doe",
+    _links: {
+        avatar: {
+            href: "http://localhost/api/users/1/avatar.png" 
+        }
+    },
+    _embedded: {
+        address: {
+            "city" : "Paris",
+            "country" : "France",
+            "street" : "142 Rue de Rivoli",
+            "zip" : "75001",
+            "_links" : {
+                "self" : {
+                    "href" : "http://localhost/api/addresses/1"
+                }
+            }
+        }
+    }
+});
+
+// "Direct" properties are accessed using standard Backbone methods
+user.get('firstName');
+user.get('lastName');
+
+// Getting a link, a link can be manipulated like a Backbone.Model
+user.getLink('avatar').get('href');
+
+// Getting an embedded resource, an embedded resource is a Hal.Model
+user.getEmbedded('address').get('city');
+user.getEmbedded('address').getLink('self').get('href');
+</code></pre>
+            <p class="text-justify">
+                The <code>Hal.Model</code> class has been design to be very easy to manipulate, we've chosen to create 
+                <code>getLink(rel)</code> and <code>getEmbedded(rel)</code> methods to force the developpers to clearly 
+                show their intention in the code.
+            </p>
+            <h3>
                 Install
             </h3>
             <p>
-                The easiest way to use the library is to pull it with Bower by adding the following dependency inside 
-                your bower.json file.
+                The easiest way to use the library is to pull it with 
+                <a href="http://bower.io" target="_blank">Bower</a> by adding the following dependency inside your 
+                <code>bower.json</code> file.
             </p>
 <pre><code class="json">{
     "dependencies": {
         "backbone.hateoas" : "~0.1"
     }
 }</code></pre>
-     
+
             <h2>
                 Global configuration
             </h2>
