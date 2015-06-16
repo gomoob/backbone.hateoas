@@ -340,7 +340,7 @@ Hal.Model = Backbone.Model.extend({
                 // If the Hal Model defines a 'urlMiddle' property we use it
                 if(_.isString(urlMiddle)) {
 
-                    base = base.replace(/([^\/])$/, '$1/') + encodeURIComponent(urlMiddle);
+                    base = base.replace(/([^\/])$/, '$1/') + urlMiddle;
 
                 }
 

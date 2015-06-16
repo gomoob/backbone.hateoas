@@ -410,6 +410,9 @@ have been named to be similar to the Backbone `get(...)`, `set(...)`, `has(...)`
 
 ## Release History 
 
+### 0.1.0-alpha10
+ * Fix #11 - urlMiddle should not been encoded
+
 ### 0.1.0-alpha9
  * Implement `hasEmbedded(rel)` and `hasLink(rel)` methods on the `Hal.Model` class
  * Implement the `clone()` method for `Hal.Model`

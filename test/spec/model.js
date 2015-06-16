@@ -1439,6 +1439,35 @@ describe(
 
             });
 
+            it('With a urlMiddle having several fragments', function() {
+
+                Hal.urlRoot = 'http://myserver.com/api';
+
+                var user = new Hal.Model(
+                    {
+                        firstName : 'Baptiste',
+                        lastName : 'Gaillard'
+                    }
+                );
+                user.urlMiddle = 'companies/gomoob/users';
+                user.set('id', 1);
+
+                expect(user.url()).to.equal('http://myserver.com/api/companies/gomoob/users/1');
+
+            });
+
+            it('With an id having special characters', function() {
+
+                Hal.urlRoot = 'http://myserver.com/api';
+
+                var user = new Hal.Model();
+                user.urlMiddle = 'companies/gomoob/users';
+                user.set('id', 'gégé');
+
+                expect(user.url()).to.equal('http://myserver.com/api/companies/gomoob/users/g%C3%A9g%C3%A9');
+
+            });
+
         });
 
     }
