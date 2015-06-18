@@ -1228,7 +1228,7 @@
           }
     
         /**
-         * Specialized Hal Collection.
+         * Specialized Hal Collection. User should set `rel` property.
          * 
          * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
          * @author Simon BAUDRY (simon.baudry@gomoob.com)
@@ -1251,6 +1251,14 @@
                     firstPage : 1,
                     pageSize : 12
                 },
+                /**
+                   @property {string} name of relation in the collection. Usually it's the only key in _embedded collection
+                */
+                rel: null,
+                /**
+                   @property {string} name if 'page' entity for current paging position
+                */
+                pageProperty: null,
                 
                 parseLinks: function (resp, xhr) {
                     
@@ -1278,7 +1286,8 @@
     
                     var links = {};
                     
-                    if(resp.total_items !== 0) {
+                    var page = this._getPageEntity(resp);
+                    if(page[queryParams.totalRecords] !== 0) {
                         links.first = resp._links.first.href;
                         links.last = resp._links.last.href;
                     }
@@ -1299,21 +1308,36 @@
     
                     // The 'rel' parameter is required !
                     if(!this.rel) {
-    
                         throw new Error('A \'rel\' parameter is required !');
-    
                     }
     
                     return resp._embedded[this.rel];
-                        
+                },
+    
+                _getPageEntity: function(resp) {
+                    if (this.pageProperty && _.has(resp, this.pageProperty)) {
+                        return resp[this.pageProperty];
+                    } else {
+                        return resp;
+                    }
                 },
     
                 parseState: function (resp, queryParams, state, options) {
-                    
-                    return {
-                        totalItems: resp.total_items
+                    var page = this._getPageEntity(resp);
+    
+                    var newState = {
+                        currentPage: page[queryParams.currentPage],
+                        pageSize: page[queryParams.pageSize]
                     };
-                    
+    
+                    if (queryParams.totalRecords && _.has(page, queryParams.totalRecords)) {
+                        newState.totalRecords = page[queryParams.totalRecords];
+                    }
+                    if (queryParams.totalPages && _.has(page, queryParams.totalPages)) {
+                        newState.totalPages = page[queryParams.totalPages];
+                    }
+    
+                    return newState;
                 },
                 
                 // FIXME: Cette fonction a presque le même code que PageableCollection.getPage(index, options) excepté 
