@@ -1247,6 +1247,24 @@
                     totalPages : null,
                     totalRecords : null
                 },
+                /**
+                   A translation map to convert response atributes to Backbone.PageableCollection state attributes.
+    
+                   You can override the default state by extending this class or specifying
+                   them in `options.queryParams` object hash to the constructor.
+    
+                   @property {Object} parseParams
+                   @property {string} [parseParams.currentPage="page"]
+                   @property {string} [parseParams.pageSize="page_size"]
+                   @property {string} [parseParams.totalPages="total_pages"]
+                   @property {string} [parseParams.totalRecords="total_entries"]
+                */
+                parseParams : {
+                    currentPage : 'page',
+                    pageSize : 'page_size',
+                    totalPages : 'total_pages',
+                    totalRecords : 'total_entries'
+                },
                 state : {
                     firstPage : 1,
                     pageSize : 12
@@ -1260,6 +1278,15 @@
                 */
                 pageProperty: null,
                 
+                constructor: function (models, options) {
+                    Backbone.PageableCollection.prototype.constructor.apply(this, arguments);
+    
+                    options = options || {};
+    
+                    var parseParams = _.extend({}, HalCollectionProto.parseParams, this.parseParams, options.parseParams);
+                    this.parseParams = parseParams;
+                },
+    
                 parseLinks: function (resp, xhr) {
                     
                     // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
@@ -1287,7 +1314,7 @@
                     var links = {};
                     
                     var page = this._getPageEntity(resp);
-                    if(page[queryParams.totalRecords] !== 0) {
+                    if(page[parseParams.totalRecords] !== 0) {
                         links.first = resp._links.first.href;
                         links.last = resp._links.last.href;
                     }
@@ -1324,17 +1351,18 @@
     
                 parseState: function (resp, queryParams, state, options) {
                     var page = this._getPageEntity(resp);
+                    var parseParams = this.parseParams;
     
                     var newState = {
-                        currentPage: page[queryParams.currentPage],
-                        pageSize: page[queryParams.pageSize]
+                        currentPage: page[parseParams.currentPage],
+                        pageSize: page[parseParams.pageSize]
                     };
     
-                    if (queryParams.totalRecords && _.has(page, queryParams.totalRecords)) {
-                        newState.totalRecords = page[queryParams.totalRecords];
+                    if (parseParams.totalRecords && _.has(page, parseParams.totalRecords)) {
+                        newState.totalRecords = page[parseParams.totalRecords];
                     }
-                    if (queryParams.totalPages && _.has(page, queryParams.totalPages)) {
-                        newState.totalPages = page[queryParams.totalPages];
+                    if (parseParams.totalPages && _.has(page, parseParams.totalPages)) {
+                        newState.totalPages = page[parseParams.totalPages];
                     }
     
                     return newState;
@@ -1396,6 +1424,8 @@
     
             }
         );
+    
+        var HalCollectionProto = Hal.Collection.prototype;
         
     })();
 
