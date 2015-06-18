@@ -69,12 +69,12 @@ describe(
                         currentPage: 'number',
                         pageSize: 'size',
                         totalPages: 'totalPages',
-                        totalRecords: 'totalElements'
+                        totalRecords: 'totalElements',
+	                    pageProperty: 'page'
                     },
                     state: {
                         firstPage: 0
                     },
-                    pageProperty: 'page',
                     mode: 'server'
                 });
                 var collection = new CustomCollection();
@@ -123,12 +123,12 @@ describe(
                         currentPage: 'number',
                         pageSize: 'size',
                         totalPages: 'totalPages',
-                        totalRecords: 'totalElements'
+                        totalRecords: 'totalElements',
+	                    pageProperty: 'page'
                     },
                     state: {
                         firstPage: 0
                     },
-                    pageProperty: 'page',
                     mode: 'server'
                 });
                 var collection = new CustomCollection();

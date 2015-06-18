@@ -32,22 +32,24 @@
                 totalRecords : null
             },
             /**
-               A translation map to convert response atributes to Backbone.PageableCollection state attributes.
+               A translation map to convert response attributes to Backbone.PageableCollection state attributes.
 
                You can override the default state by extending this class or specifying
-               them in `options.queryParams` object hash to the constructor.
+               them in `options.parseParams` object hash to the constructor.
 
                @property {Object} parseParams
                @property {string} [parseParams.currentPage="page"]
                @property {string} [parseParams.pageSize="page_size"]
                @property {string} [parseParams.totalPages="total_pages"]
                @property {string} [parseParams.totalRecords="total_entries"]
+               @property {string} [parseParams.pageProperty=null] non-empty name if 'page' entity for current paging position
             */
             parseParams : {
                 currentPage : 'page',
                 pageSize : 'page_size',
                 totalPages : 'total_pages',
-                totalRecords : 'total_entries'
+                totalRecords : 'total_entries',
+                pageProperty: null
             },
             state : {
                 firstPage : 1,
@@ -57,10 +59,6 @@
                @property {string} name of relation in the collection. Usually it's the only key in _embedded collection
             */
             rel: null,
-            /**
-               @property {string} name if 'page' entity for current paging position
-            */
-            pageProperty: null,
             
             constructor: function (models, options) {
                 Backbone.PageableCollection.prototype.constructor.apply(this, arguments);
@@ -126,8 +124,8 @@
             },
 
             _getPageEntity: function(resp) {
-                if (this.pageProperty && _.has(resp, this.pageProperty)) {
-                    return resp[this.pageProperty];
+                if (this.parseParams.pageProperty && _.has(resp, this.parseParams.pageProperty)) {
+                    return resp[this.parseParams.pageProperty];
                 } else {
                     return resp;
                 }
