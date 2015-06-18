@@ -49,7 +49,7 @@ layout: default
                 Language</a>.
             </p>
             
-            <h2>
+            <h2 id="getting-started">
                 <a id="user-content-getting-started" href="#getting-started" style="margin-left: -40px; opacity: 1;">
                     <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
                 </a>
@@ -155,20 +155,107 @@ user.getEmbedded('address').getLink('self').get('href');
                     name.
                 </p>
             </blockquote>
-            <p>
+            <p class="text-justify">
                 So it defines how the server should respond but is does not define how we should send HTTP POST, PUT and 
                 PATCH requests. In fact this is something which seems to be left unspecified deliberatly.
             </p>
-            <p>
+            <p class="text-justify">
                 The <code>Hal.contentType</code> global configuration parameter allows to configure how your models and 
                 collections should be serialized before being sent to the server (i.e it changes the behavior of the 
                 Backbone <code><a href="http://backbonejs.org/#Model-toJSON" target="_blank">Model.toJSON()</a></code> 
                 and <code><a href="http://backbonejs.org/#Collection-toJSON">Collection.toJSON()</a></code> methods).
             </p>
-            <p>
+            <p class="text-justify">
                 The current version of the library supports 2 content types : <code>application/json</code> and 
                 <code>application/hal+json</code>.
             </p>
+            <br/>
+            <h4>Sample with <code>application/json</code></h4>
+            <p class="text-justify">
+                The following sample ...
+            </p>
+<pre><code class="javascript">// The 'Hal.contentType' parameter is an application wide parameter
+// So in most cases it is only configured at one place in your project
+Hal.contentType = 'application/json';
+
+...
+
+// Somewhere in the code of the application
+var john = new Hal.Model();
+john.urlMiddle = 'users';
+john.set('id', 'jdoe');
+john.fetch({
+    success : function() {
+        console.log(user.toJSON());     
+    }
+});
+</code></pre>
+            <p class="text-justify">
+                Will display ...
+            </p>
+<pre><code class="json">{
+    "id": 1,
+    "firstName": "John",
+    "lastName" : "Doe",
+    "address" : {
+        "city" : "Paris",
+        "country" : "France",
+        "street" : "142 Rue de Rivoli",
+        "zip" : "75001"
+    }
+}
+</code></pre>
+<br/>
+            <h4>Sample with <code>application/hal+json</code></h4>
+            <p class="text-justify">
+                The following sample ...
+            </p>
+<pre><code class="javascript">// The 'Hal.contentType' parameter is an application wide parameter
+// So in most cases it is only configured at one place in your project
+Hal.contentType = 'application/hal+json';
+
+...
+
+// Somewhere in the code of the application
+var john = new Hal.Model();
+john.urlMiddle = 'users';
+john.set('id', 'jdoe');
+john.fetch({
+    success : function() {
+        console.log(user.toJSON());     
+    }
+});
+</code></pre>
+            <p class="text-justify">
+                Will display ...
+            </p>
+<pre><code class="json">{
+    "id": 1,
+    "firstName": "John",
+    "lastName" : "Doe",
+    "_embedded" : {
+        "address" : {
+            "city" : "Paris",
+            "country" : "France",
+            "street" : "142 Rue de Rivoli",
+            "zip" : "75001",
+            "_links" : {
+                "self" : {
+                    "href" : "http://localhost/backbone.hateoas/test/api/addresses/1"
+                }
+            }
+        }
+    },
+    "_links" : {
+        "address" : {
+            "href" : "http://localhost/backbone.hateoas/test/api/addresses/1"
+        },
+        "self" : { 
+            "href" : "http://localhost/backbone.hateoas/test/api/users/1"
+        }
+    }
+}
+</code></pre>
             <h3>
                 urlRoot
             </h3>
