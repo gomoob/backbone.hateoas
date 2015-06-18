@@ -24,10 +24,13 @@ layout: default
             </p>
             <p class="text-justify">
                 To understand what is HATEAOS and what's its place in REST in general we advise you to understand the 
-                <a href="http://martinfowler.com/articles/richardsonMaturityModel.html">Richardson Maturity Model</a>.
+                <a href="http://martinfowler.com/articles/richardsonMaturityModel.html">Richardson Maturity Model</a> 
+                and most specifically the 
+                <a href="http://martinfowler.com/articles/richardsonMaturityModel.html#level3">REST Level 3 - Hypermedia 
+                Controls</a>.
             </p>
             <p class="text-justify">
-                Today several standards exists to model REST resources - 
+                Today several standards exists to model REST resources and links between them - 
                 <a href="http://stateless.co/hal_specification.html">HAL</a>, 
                 <a href="http://www.w3.org/TR/json-ld">JSON-LD</a>, 
                 <a href="http://amundsen.com/media-types/collection/">Collection+JSON</a>, 
@@ -58,11 +61,13 @@ layout: default
             <p class="text-justify">
                 The library provides 2 useful classes, <code>Hal.Model</code> and <code>Hal.Collection</code>.
             </p>
+            <h4>Hal.Model</h4>
             <p>
                 The <code>Hal.Model</code> class extends the <code>Backbone.Model</code> class and adds support to 
                 manipulate HAL links and HAL embedded resources.
             </p>
 <pre><code class="javascript">
+// Instanciation of an Hal.Model object is done the same way as you're used to with a standard Backbone model
 var user = new Hal.Model({
     firstName: "John",
     lastName: "Doe",
@@ -98,9 +103,27 @@ user.getEmbedded('address').get('city');
 user.getEmbedded('address').getLink('self').get('href');
 </code></pre>
             <p class="text-justify">
-                The <code>Hal.Model</code> class has been design to be very easy to manipulate, we've chosen to create 
+                The <code>Hal.Model</code> class has been designed to be very easy to manipulate, we've chosen to create 
                 <code>getLink(rel)</code> and <code>getEmbedded(rel)</code> methods to force the developpers to clearly 
                 show their intention in the code.
+            </p>
+            <p class="text-justify">
+                For more informations abount the <code>Hal.Model</code> class please read the chapter 
+                <a href="#hal.model">Hal.Model</a>.
+            </p>
+            <h4>Hal.Collection</h4>
+            <p class="text-justify">
+                The <code>Hal.Collection</code> class extends the <code>Backbone.Collection</code> class by adding 
+                utility methods to navigate through an "HAL Collection". The HAL standard does not describe the concept 
+                of an HAL collection but most framwork do it (
+                <a href="https://apigility.org/documentation/api-primer/halprimer#collections">Apigility</a>, 
+                <a href="http://hateoas-php.org/#dealing-with-collections">Willdurand Hateoas</a>, etc.). The 
+                <code>Hal.Collection</code> class is configurable and can be used to work with custom pagination 
+                parameter names and links.
+            </p>
+            <p class="text-justify">
+                For more informations abount the <code>Hal.Collection</code> class please read the chapter 
+                <a href="#hal.model">Hal.Collection</a>.
             </p>
             <h3>
                 Install
@@ -122,6 +145,30 @@ user.getEmbedded('address').getLink('self').get('href');
             <h3>
                 contentType
             </h3>
+            <p class="text-justify">
+                The HAL standard defines 2 new media types which are <code>application/hal+json</code> and 
+                <code>application/hal+xml</code>, it also indicates the following :
+            </p>
+            <blockquote>
+                <p>
+                    When serving HAL over HTTP, the Content-Type of the response should contain the relevant media type 
+                    name.
+                </p>
+            </blockquote>
+            <p>
+                So it defines how the server should respond but is does not define how we should send HTTP POST, PUT and 
+                PATCH requests. In fact this is something which seems to be left unspecified deliberatly.
+            </p>
+            <p>
+                The <code>Hal.contentType</code> global configuration parameter allows to configure how your models and 
+                collections should be serialized before being sent to the server (i.e it changes the behavior of the 
+                Backbone <code><a href="http://backbonejs.org/#Model-toJSON" target="_blank">Model.toJSON()</a></code> 
+                and <code><a href="http://backbonejs.org/#Collection-toJSON">Collection.toJSON()</a></code> methods).
+            </p>
+            <p>
+                The current version of the library supports 2 content types : <code>application/json</code> and 
+                <code>application/hal+json</code>.
+            </p>
             <h3>
                 urlRoot
             </h3>
