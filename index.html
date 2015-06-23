@@ -143,12 +143,8 @@ user.getEmbedded('address').getLink('self').get('href');
     }
 }</code></pre>
 
-            <h2>
-                Global configuration
-            </h2>
-            <h3>
-                contentType
-            </h3>
+            <h2 id="global-configuration">Global configuration</h2>
+            <h3 id="content-type">contentType</h3>
             <p>
                 The HAL standard defines 2 new media types which are <code>application/hal+json</code> and 
                 <code>application/hal+xml</code>, it also indicates the following :
@@ -260,9 +256,7 @@ john.fetch({
     }
 }
 </code></pre>
-            <h3>
-                urlRoot
-            </h3>
+            <h3 id="url-root">urlRoot</h3>
             <p>
                 When you work with HAL you often have a root URL which is global to your API, in most cases this URL is 
                 the root of a catalog (i.e a special resource describing the documentation of your endpoints and how to 
@@ -308,12 +302,8 @@ john.urlRoot = 'https://myserver2.com/api/users/jdoe';
 john.fetch();
 </code></pre>
 
-            <h2>
-                Hal.Model
-            </h2>
-            <h3>
-                urlMiddle
-            </h3>
+            <h2 id="hal.model">Hal.Model</h2>
+            <h3 id="url-middle">urlMiddle</h3>
             <p>
                 The <code>urlMiddle</code> is an additional URL parameter specific to backbone.hateoas and which easier 
                 model fetching without being forced to attach your model to a collection.
@@ -345,9 +335,7 @@ john.set('id', 1);
 john.fetch();
 </code></pre>
 
-            <h3>
-                toJSON
-            </h3>
+            <h3 id="to-json">toJSON</h3>
             <p>
                 By default the Backbone <code>toJSON([options])</code> method do not accept or use any option, a 
                 <code>Hal.Model</code> can use an additional <code>contentType</code> option which can be equal to 
@@ -362,9 +350,7 @@ john.fetch();
                 local storage for example).
             </p>
             
-            <h2>
-                Hal.Collection
-            </h2>
+            <h2 id="hal.collection">Hal.Collection</h2>
             <p>
                 The backbone.hateoas <code>Hal.Collection</code> class is an opinionated class to manipulate HAL 
                 collection resources, what we call a HAL collection is a resource having the following structure :
@@ -441,17 +427,88 @@ users.getPreviousPage();
 users.getNextPage();
 </code></pre>
 
-            <h2>
-                Embedded
-            </h2>
+            <h2 id="embedded">Embedded</h2>
             
-            <h2>
-                Links
-            </h2>
+            <h2 id="links">Links</h2>
             
-            <h2>
-                Release history
-            </h2>
+            <h2 id="release-history">Release history</h2>
+            <h3 id="0.1.0-beta.1">0.1.0-beta.1</h3>
+            <ul>
+                <li>
+                    Fix <a href="https://github.com/gomoob/backbone.hateoas/issues/11" target="_blank">#11</a> - 
+                    urlMiddle should not be encoded.
+                </li>
+            </ul>
+            <h3 id="0.1.0-alpha9">0.1.0-alpha9</h3>
+            <ul>
+                <li>
+                    Implement <code>hasEmbedded(rel)</code> and <code>hasLink(rel)</code> methods on the 
+                    <code>Hal.Model</code> class ;
+                </li>
+                <li>Implement the <code>clone()</code> method for <code>Hal.Model</code> ;</li>
+                <li>Setup Travis builds.</li>
+            </ul>
+            <h3 id="0.1.0-alpha8">0.1.0-alpha8</h3>
+            <ul>
+               <li>
+                   Fix a bug in the <code>toJSON()</code> method, the <code>contentType</code> option was not propagated 
+                   to embedded resources.
+               </li>
+            </ul>
+            <h3 id="0.1.0-alpha7">0.1.0-alpha7</h3>
+            <ul>
+                <li>
+                    Allow the <code>toJSON()</code> method to take a <code>contentType</code> option to configure how to 
+                    serialize a resource, this is useful when you when to serialize an HAL resource to persist it in the 
+                    local storage for example.
+                </li>
+            </ul>
+            <h3 id="0.1.0-alpha6">0.1.0-alpha6</h3>
+            <ul>
+                <li>Allow the <code>toJSON()</code> methods to return plain JSON or HAL JSON ;</li>
+                <li>
+                    Add a new global <code>Hal.contentType</code> parameter to configure the behavior of the 
+                    <code>toJSON()</code> methods ;
+                </li>
+                <li>Add documentation to explain how to manipulate embedded resources ;</li>
+            </ul>
+            <h3 id="0.1.0-alpha5">0.1.0-alpha5</h3>
+            <ul>
+                <li>
+                    Fix documentation, we talked about a <code>middleUrl</code> parameter but it was 
+                    <code>urlMiddle</code> ;
+                </li>
+                <li>Fix several serialization / deserialization bugs.</li>
+            </ul>
+            <h3 id="0.1.0-alpha4">0.1.0-alpha4</h3>
+            <ul>
+                <li>Add a global <code>Hal.urlRoot</code> parameter ;</li>
+                <li>
+                    Add a new <code>urlMiddle</code> parameter to be used with <code>Hal.Collection</code> and 
+                    <code>Hal.Model</code> ;
+                </li>
+                <li>Fix several <code>toJSON()</code> method implementations ;</li>
+                <li>
+                    Now the <code>Hal.Model</code> class is initialized in the <code>set(key, val, options)</code> 
+                    method instead of <code>initialize(options)</code> ;
+                </li>
+                <li>Fix embedded array resource parsing ;</li>
+                <li>Code coverage is better</li>
+            </ul>
+            <h3 id="0.1.0-alpha3">0.1.0-alpha3</h3>
+            <ul>
+                <li>Fix AMD dependency problem with Underscore.</li>
+            </ul>
+            <h3 id="0.1.0-alpha2">0.1.0-alpha2</h3>
+            <ul>
+                <li>Add <code>_links</code> parsing and management ;</li>
+                <li>Add <code>_embedded</code> parsing and management ;</li>
+                <li>Continue user documentation.</li>
+            </ul>
+            <h3 id="0.1.0-alpha1">0.1.0-alpha1</h3>
+            <ul>
+                <li>First alpha release.</li>
+            </ul>
 	    </div>
     </div>
 </div>
