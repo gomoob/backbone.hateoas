@@ -1228,7 +1228,7 @@
           }
     
         /**
-         * Specialized Hal Collection.
+         * Specialized Hal Collection. User should set `rel` property.
          * 
          * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
          * @author Simon BAUDRY (simon.baudry@gomoob.com)
@@ -1247,11 +1247,44 @@
                     totalPages : null,
                     totalRecords : null
                 },
+                /**
+                   A translation map to convert response attributes to Backbone.PageableCollection state attributes.
+    
+                   You can override the default state by extending this class or specifying
+                   them in `options.parseParams` object hash to the constructor.
+    
+                   @property {Object} parseParams
+                   @property {string} [parseParams.currentPage="page"]
+                   @property {string} [parseParams.pageSize="page_size"]
+                   @property {string} [parseParams.totalPages="total_pages"]
+                   @property {string} [parseParams.totalRecords="total_entries"]
+                   @property {string} [parseParams.pageProperty=null] non-empty name if 'page' entity for current paging position
+                */
+                parseParams : {
+                    currentPage : 'page',
+                    pageSize : 'page_size',
+                    totalPages : 'total_pages',
+                    totalRecords : 'total_entries',
+                    pageProperty: null
+                },
                 state : {
                     firstPage : 1,
                     pageSize : 12
                 },
+                /**
+                   @property {string} name of relation in the collection. Usually it's the only key in _embedded collection
+                */
+                rel: null,
                 
+                constructor: function (models, options) {
+                    Backbone.PageableCollection.prototype.constructor.apply(this, arguments);
+    
+                    options = options || {};
+    
+                    var parseParams = _.extend({}, HalCollectionProto.parseParams, this.parseParams, options.parseParams);
+                    this.parseParams = parseParams;
+                },
+    
                 parseLinks: function (resp, xhr) {
                     
                     // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
@@ -1278,7 +1311,8 @@
     
                     var links = {};
                     
-                    if(resp.total_items !== 0) {
+                    var page = this._getPageEntity(resp);
+                    if(page[parseParams.totalRecords] !== 0) {
                         links.first = resp._links.first.href;
                         links.last = resp._links.last.href;
                     }
@@ -1299,21 +1333,37 @@
     
                     // The 'rel' parameter is required !
                     if(!this.rel) {
-    
                         throw new Error('A \'rel\' parameter is required !');
-    
                     }
     
                     return resp._embedded[this.rel];
-                        
+                },
+    
+                _getPageEntity: function(resp) {
+                    if (this.parseParams.pageProperty && _.has(resp, this.parseParams.pageProperty)) {
+                        return resp[this.parseParams.pageProperty];
+                    } else {
+                        return resp;
+                    }
                 },
     
                 parseState: function (resp, queryParams, state, options) {
-                    
-                    return {
-                        totalItems: resp.total_items
+                    var page = this._getPageEntity(resp);
+                    var parseParams = this.parseParams;
+    
+                    var newState = {
+                        currentPage: page[parseParams.currentPage],
+                        pageSize: page[parseParams.pageSize]
                     };
-                    
+    
+                    if (parseParams.totalRecords && _.has(page, parseParams.totalRecords)) {
+                        newState.totalRecords = page[parseParams.totalRecords];
+                    }
+                    if (parseParams.totalPages && _.has(page, parseParams.totalPages)) {
+                        newState.totalPages = page[parseParams.totalPages];
+                    }
+    
+                    return newState;
                 },
                 
                 // FIXME: Cette fonction a presque le même code que PageableCollection.getPage(index, options) excepté 
@@ -1372,6 +1422,8 @@
     
             }
         );
+    
+        var HalCollectionProto = Hal.Collection.prototype;
         
     })();
 
