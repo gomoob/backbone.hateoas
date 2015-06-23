@@ -7,29 +7,27 @@ layout: default
 <div class="article">
     <div class="panel">
 	    <div class="panel-body" style="padding: 15px 55px;">
-	        <h1>
-	            backbone.hateoas
-	            <small>HATEOAS with Backbone</small>
-	        </h1>
+
+	        <h1>backbone.hateoas <small>HATEOAS with Backbone</small></h1>
 	        <p>
 	            <img src="https://img.shields.io/travis/gomoob/backbone.hateoas.svg" />
 	            <img src="https://img.shields.io/coveralls/gomoob/backbone.hateoas.svg" />
 	            <img src="https://img.shields.io/github/release/gomoob/backbone.hateoas.svg" />
 	        </p>
-            <p class="text-justify">
+            <p>
 	            backbone.hateoas is a Javascript library which facilitates the use of 
 	            <a href="https://en.wikipedia.org/wiki/HATEOAS">HATEOAS</a> (Hypermedia as the Engine of Application 
 	            State) and the HAL (Hypertext Application Language) standard in your Backbone and Marionette 
 	            applications.
             </p>
-            <p class="text-justify">
+            <p>
                 To understand what is HATEAOS and what's its place in REST in general we advise you to understand the 
                 <a href="http://martinfowler.com/articles/richardsonMaturityModel.html">Richardson Maturity Model</a> 
                 and most specifically the 
                 <a href="http://martinfowler.com/articles/richardsonMaturityModel.html#level3">REST Level 3 - Hypermedia 
                 Controls</a>.
             </p>
-            <p class="text-justify">
+            <p>
                 Today several standards exists to model REST resources and links between them - 
                 <a href="http://stateless.co/hal_specification.html">HAL</a>, 
                 <a href="http://www.w3.org/TR/json-ld">JSON-LD</a>, 
@@ -37,11 +35,11 @@ layout: default
                 <a href="https://github.com/kevinswiber/siren">SIREN</a> to name a 
                 few.
             </p>
-            <p class="text-justify">
+            <p>
                 backbone.hateoas uses the HAL standard because its JSON format is easy to manipulate with Backbone and 
                 because we think its the most used one today.
             </p>
-            <p class="text-justify">
+            <p>
                 The HAL specification is quickly described here 
                 <a href="http://stateless.co/hal_specification.html" target="_blank">HAL - Hypertext Application 
                 Language</a>, the JSON version of HAL has also been published as an internet draft here : 
@@ -49,20 +47,13 @@ layout: default
                 Language</a>.
             </p>
             
-            <h2 id="getting-started">
-                <a id="user-content-getting-started" href="#getting-started" style="margin-left: -40px; opacity: 1;">
-                    <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
-                </a>
-                Getting started
-            </h2>
-            <h3>
-                Quick presentation
-            </h3>
-            <p class="text-justify">
+            <h2 id="getting-started">Getting started</h2>
+            <h3 id="introduction">Introduction</h3>
+            <p>
                 The HAL standard defines a generic resource concept, but Backbone defines 2 kinds of "resources" (the 
                 models and the collections).
             </p>
-            <p class="text-justify">
+            <p>
                 So backbone.hateoas defines 2 kinds of resources :
             </p>
             <ul>
@@ -76,7 +67,7 @@ layout: default
                     practices).
                 </li>
             </ul>
-            <h4>Hal.Model</h4>
+            <strong>Hal.Model</strong>
             <p>
                 The <code>Hal.Model</code> class extends the <code>Backbone.Model</code> class and adds support to 
                 manipulate HAL links and HAL embedded resources.
@@ -117,17 +108,17 @@ user.getLink('avatar').get('href');
 user.getEmbedded('address').get('city');
 user.getEmbedded('address').getLink('self').get('href');
 </code></pre>
-            <p class="text-justify">
+            <p>
                 The <code>Hal.Model</code> class has been designed to be very easy to manipulate, we've chosen to create 
                 <code>getLink(rel)</code> and <code>getEmbedded(rel)</code> methods to force the developpers to clearly 
                 show their intention in the code.
             </p>
-            <p class="text-justify">
+            <p>
                 For more informations abount the <code>Hal.Model</code> class please read the chapter 
                 <a href="#hal.model">Hal.Model</a>.
             </p>
-            <h4>Hal.Collection</h4>
-            <p class="text-justify">
+            <strong>Hal.Collection</strong>
+            <p>
                 The <code>Hal.Collection</code> class extends the <code>Backbone.Collection</code> class by adding 
                 utility methods to navigate through an "HAL Collection". The HAL standard does not describe the concept 
                 of an HAL collection but most framwork do it (
@@ -136,13 +127,11 @@ user.getEmbedded('address').getLink('self').get('href');
                 <code>Hal.Collection</code> class is configurable and can be used to work with custom pagination 
                 parameter names and links.
             </p>
-            <p class="text-justify">
+            <p>
                 For more informations abount the <code>Hal.Collection</code> class please read the chapter 
                 <a href="#hal.model">Hal.Collection</a>.
             </p>
-            <h3>
-                Install
-            </h3>
+            <h3 id="install">Install</h3>
             <p>
                 The easiest way to use the library is to pull it with 
                 <a href="http://bower.io" target="_blank">Bower</a> by adding the following dependency inside your 
@@ -160,7 +149,7 @@ user.getEmbedded('address').getLink('self').get('href');
             <h3>
                 contentType
             </h3>
-            <p class="text-justify">
+            <p>
                 The HAL standard defines 2 new media types which are <code>application/hal+json</code> and 
                 <code>application/hal+xml</code>, it also indicates the following :
             </p>
@@ -170,23 +159,23 @@ user.getEmbedded('address').getLink('self').get('href');
                     name.
                 </p>
             </blockquote>
-            <p class="text-justify">
+            <p>
                 So it defines how the server should respond but is does not define how we should send HTTP POST, PUT and 
                 PATCH requests. In fact this is something which seems to be left unspecified deliberatly.
             </p>
-            <p class="text-justify">
+            <p>
                 The <code>Hal.contentType</code> global configuration parameter allows to configure how your models and 
                 collections should be serialized before being sent to the server (i.e it changes the behavior of the 
                 Backbone <code><a href="http://backbonejs.org/#Model-toJSON" target="_blank">Model.toJSON()</a></code> 
                 and <code><a href="http://backbonejs.org/#Collection-toJSON">Collection.toJSON()</a></code> methods).
             </p>
-            <p class="text-justify">
+            <p>
                 The current version of the library supports 2 content types : <code>application/json</code> and 
                 <code>application/hal+json</code>.
             </p>
             <br/>
             <h4>Sample with <code>application/json</code></h4>
-            <p class="text-justify">
+            <p>
                 The following sample ...
             </p>
 <pre><code class="javascript">// The 'Hal.contentType' parameter is an application wide parameter
@@ -205,7 +194,7 @@ john.fetch({
     }
 });
 </code></pre>
-            <p class="text-justify">
+            <p>
                 Will display ...
             </p>
 <pre><code class="json">{
@@ -222,7 +211,7 @@ john.fetch({
 </code></pre>
 <br/>
             <h4>Sample with <code>application/hal+json</code></h4>
-            <p class="text-justify">
+            <p>
                 The following sample ...
             </p>
 <pre><code class="javascript">// The 'Hal.contentType' parameter is an application wide parameter
@@ -241,7 +230,7 @@ john.fetch({
     }
 });
 </code></pre>
-            <p class="text-justify">
+            <p>
                 Will display ...
             </p>
 <pre><code class="json">{
@@ -274,24 +263,24 @@ john.fetch({
             <h3>
                 urlRoot
             </h3>
-            <p class="text-justify">
+            <p>
                 When you work with HAL you often have a root URL which is global to your API, in most cases this URL is 
                 the root of a catalog (i.e a special resource describing the documentation of your endpoints and how to 
                 access them).
             </p>
-            <p class="text-justify">
+            <p>
                 The <code>Hal.urlRoot</code> property allows you to configure this global API root URL (please note that 
                 the name <code>urlRoot</code> has been chosen to be the same as the Backbone Model <code>urlRoot</code> 
                 parameter).
             </p>
-            <p class="text-justify">
+            <p>
                 For exemple if our API is located at <code>https://myserver.com/api</code> then we could declare the 
                 following <code>Hal.urlRoot</code>.
             </p>
 <pre><code class="javascript">
 Hal.urlRoot = 'https://myserver.com/api';
 </code></pre>
-            <p class="text-justify">
+            <p>
                 After that <code>Hal.Collection</code> and <code>Hal.Model</code> can automatically generate absolute 
                 API urls for you.
             </p>
@@ -325,19 +314,19 @@ john.fetch();
             <h3>
                 urlMiddle
             </h3>
-            <p class="text-justify">
+            <p>
                 The <code>urlMiddle</code> is an additional URL parameter specific to backbone.hateoas and which easier 
                 model fetching without being forced to attach your model to a collection.
             </p>
-            <p class="text-justify">
+            <p>
                 The <code>urlMiddle</code> is used only when your model is not linked to a collection having a URL and 
                 which do not define a specific <code>urlRoot</code> property.
             </p>
-            <p class="text-justify">
+            <p>
                 The <code>urlMiddle</code> is used to create an absolute URL (with the <code>url()</code> method) equal 
                 to the concatenation of the <code>Hal.urlRoot</code> property plus the <code>urlMiddle</code>.
             </p>
-            <p class="text-justify">
+            <p>
                 Here is an exemple :
             </p>
 <pre><code class="javascript">
@@ -359,16 +348,16 @@ john.fetch();
             <h3>
                 toJSON
             </h3>
-            <p class="text-justify">
+            <p>
                 By default the Backbone <code>toJSON([options])</code> method do not accept or use any option, a 
                 <code>Hal.Model</code> can use an additional <code>contentType</code> option which can be equal to 
                 <code>application/json</code> or <code>application/hal+json</code>.
             </p>
-            <p class="text-justify">
+            <p>
                 When the <code>toJSON([options])</code> method is called with this option it overwrites the 
                 <code>Hal.contentType</code> configuration only for this call.
             </p>
-            <p class="text-justify">
+            <p>
                 In most cases this is useful when you when to store a serialized version of a resource somewhere (in the 
                 local storage for example).
             </p>
@@ -376,7 +365,7 @@ john.fetch();
             <h2>
                 Hal.Collection
             </h2>
-            <p class="text-justify">
+            <p>
                 The backbone.hateoas <code>Hal.Collection</code> class is an opinionated class to manipulate HAL 
                 collection resources, what we call a HAL collection is a resource having the following structure :
             </p>
@@ -412,7 +401,7 @@ john.fetch();
     }
 }
 </code></pre>
-            <p class="text-justify">
+            <p>
                 The constraints imposed to have a valid HAL Collection are the following :
             </p>
             <ul>
@@ -423,7 +412,7 @@ john.fetch();
                 <li>The HAL resource MUST HAVE ONLY ONE embedded array property representing the elements of the current 
                 collection's page</li>
             </ul>
-            <p class="text-justify">
+            <p>
                 So a <code>Hal.Collection</code> object automatically manages paginated collections, the name of the 
                 attributes <code>page</code>, <code>page_count</code>, <code>page_size</code> and 
                 <code>total_items</code> have been chosen to be compliant with 
