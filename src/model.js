@@ -243,7 +243,7 @@ Hal.Model = Backbone.Model.extend({
      * @return {Hal.Model} This.
      */
     set: function(key, val, options) {
-
+        
         var attr, attrs, k;
 
         if (key === null) {
@@ -257,11 +257,11 @@ Hal.Model = Backbone.Model.extend({
 
             attrs = key;
             options = val;
-
+            
         } else {
 
             (attrs = {})[key] = val;
-
+            
         }
 
         // If HAL links are declared
@@ -303,9 +303,9 @@ Hal.Model = Backbone.Model.extend({
         }
 
         attrs = _.omit(attrs, '_links', '_embedded');
-
-        return Backbone.Model.prototype.set.call(this, attrs, val, options);
-
+        
+        return Backbone.Model.prototype.set.call(this, attrs, options, void 0);
+        
     },
 
     /**

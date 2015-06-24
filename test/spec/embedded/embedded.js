@@ -87,7 +87,132 @@ describe(
 
             });
 
-        });
+            it('With undefined and null embedded resources', function() {
+              
+                var embedded = new Hal.Embedded({
+                    user : {
+                        firstName : 'Baptiste',
+                        lastName : 'Gaillard',
+                        _links : {
+                            self: {
+                                href : 'http://myserver.com/api/users/1'
+                            }
+                        }
+                    },
+                    undefinedEmbeddedRessource : undefined,
+                    nullEmbeddedRessource : null
+                });
+                
+                // Checks the 'user' embedded resource
+                var user = embedded.get('user');
+                expect(user).to.be.an.instanceof(Hal.Model);
 
+                expect(JSON.stringify(user.toJSON())).to.equal(JSON.stringify({
+                    firstName : 'Baptiste',
+                    lastName : 'Gaillard'
+                }));
+
+                // Checks the 'undefinedEmbeddedRessource' embedded resource
+                expect(embedded.attributes).to.have.property('undefinedEmbeddedRessource');
+                expect(embedded.get('undefinedEmbeddedRessource')).to.be.undefined;
+                
+                // Checks the 'nullEmbeddedRessource' embedded resource
+                expect(embedded.attributes).to.have.property('nullEmbeddedRessource');
+                expect(embedded.get('nullEmbeddedRessource')).to.be.null;
+                
+            });
+            
+        });
+        
+        describe('toJSON', function() {
+           
+            it('With very simple link', function() {
+                
+                var embedded = new Hal.Embedded({
+                    user : {
+                        firstName : 'Baptiste',
+                        lastName : 'Gaillard',
+                        _links : {
+                            self: {
+                                href : 'http://myserver.com/api/users/1'
+                            }
+                        }
+                    }
+                });
+                
+                expect(JSON.stringify(embedded.toJSON())).to.equal(JSON.stringify({
+                    'user' : {
+                        'firstName' : 'Baptiste',
+                        'lastName' : 'Gaillard'
+                    }
+                }));
+                
+            });
+            
+            it('With contentType parameter specified', function() {
+                
+                var embedded = new Hal.Embedded({
+                    user : {
+                        firstName : 'Baptiste',
+                        lastName : 'Gaillard',
+                        _links : {
+                            self: {
+                                href : 'http://myserver.com/api/users/1'
+                            }
+                        }
+                    }
+                });
+                
+                expect(JSON.stringify(embedded.toJSON({contentType : 'application/json'}))).to.equal(JSON.stringify({
+                    'user' : {
+                        'firstName' : 'Baptiste',
+                        'lastName' : 'Gaillard'
+                    }
+                }));
+                
+                expect(JSON.stringify(embedded.toJSON({contentType : 'application/hal+json'}))).to.equal(JSON.stringify({
+                    'user' : {
+                        'firstName' : 'Baptiste',
+                        'lastName' : 'Gaillard',
+                        '_links' : {
+                            'self' : {
+                                'href' : 'http://myserver.com/api/users/1'
+                            }
+                        }
+                    }
+                }));
+                
+            });
+            
+            it('With undefined and null values', function() {
+                
+                var embedded = new Hal.Embedded({
+                        user : {
+                            firstName : 'Baptiste',
+                            lastName : 'Gaillard',
+                            _links : {
+                                self: {
+                                    href : 'http://myserver.com/api/users/1'
+                                }
+                            }
+                        },
+                        undefinedEmbeddedRessource : undefined,
+                        nullEmbeddedRessource : null
+                    }),
+                    embeddedJSONified = embedded.toJSON();
+                
+                expect(JSON.stringify(embeddedJSONified)).to.equal(JSON.stringify({
+                    'user' : {
+                        'firstName' : 'Baptiste',
+                        'lastName' : 'Gaillard'
+                    },
+                    'undefinedEmbeddedRessource' : undefined,
+                    'nullEmbeddedRessource' : null
+                }));
+                
+            });
+            
+        });
+        
     }
 );

@@ -134,7 +134,7 @@ Hal.Embedded = Backbone.Model.extend(
                     // If the provided element is already a Hal.Model or a Hal.Collection we set it directly
                     if(embeddedResource instanceof Hal.Model || embeddedResource instanceof Hal.Collection) {
 
-                        Backbone.Model.prototype.set.call(this, rel, embeddedResource);
+                        Backbone.Model.prototype.set.call(this, rel, embeddedResource, options);
 
                     }
 
@@ -162,22 +162,21 @@ Hal.Embedded = Backbone.Model.extend(
 
                         }
 
-                        Backbone.Model.prototype.set.call(this, rel, array);
+                        Backbone.Model.prototype.set.call(this, rel, array, options);
 
                     }
 
                     // The current embedded resource is a plain HAL object
                     else if(_.isObject(embeddedResource)){
 
-                        Backbone.Model.prototype.set.call(this, rel, new Hal.Model(embeddedResource));
+                        Backbone.Model.prototype.set.call(this, rel, new Hal.Model(embeddedResource), options);
 
                     }
 
-                    // Null or undefined is authorized, in most case it is encounterd when the 'unset(attr)' method is
-                    // called
+                    // Null or undefined are authorized
                     else if(_.isNull(embeddedResource) || _.isUndefined(embeddedResource)) {
 
-                        Backbone.Model.prototype.set.call(this, rel, embeddedResource);
+                        Backbone.Model.prototype.set.call(this, rel, embeddedResource, options);
 
                     }
 
@@ -214,16 +213,36 @@ Hal.Embedded = Backbone.Model.extend(
             for(var rel in this.attributes) {
 
                 var resource = this.attributes[rel];
-
+                
+                // Null or undefined are authorized, in most case it is encountered when the 'unset(attr)' method is
+                // called
+                if(_.isUndefined(resource) || _.isNull(resource)) {
+                
+                    json[rel] = resource;
+                        
+                } 
+                
                 // If the embedded resource is an array then we convert each object
                 // FIXME: Ici il faut pouvoir serialiser les collections Backbone également ?
-                if(_.isArray(resource)) {
+                else if(_.isArray(resource)) {
 
                     json[rel] = [];
 
                     for(var i = 0; i < resource.length; ++i) {
 
-                        json[rel].push(resource[i].toJSON(_options));
+                        // A embedded resource can be undefined or null, in that case we convert it in a null json value  
+                        if(_.isUndefined(resource[i]) || _.isNull(resource[i])) {
+                        
+                            json[rel].push(resource[i]);
+                                
+                        } 
+
+                        // Otherwise we expect a Hal.Model
+                        else {
+                            
+                            json[rel].push(resource[i].toJSON(_options));
+                            
+                        }
 
                     }
 
@@ -232,7 +251,7 @@ Hal.Embedded = Backbone.Model.extend(
                 // Otherwise we expect a Hal.Model
                 else {
 
-                    json[rel] = this.attributes[rel].toJSON(_options);
+                    json[rel] = resource.toJSON(_options);
 
                 }
 

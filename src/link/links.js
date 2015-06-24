@@ -73,24 +73,31 @@ Hal.Links = Backbone.Model.extend(
                     // If the provided element is already a Hal.Link we set it directly
                     if(link instanceof Hal.Link) {
 
-                        Backbone.Model.prototype.set.call(this, rel, link);
+                        Backbone.Model.prototype.set.call(this, rel, link, options);
 
                     }
 
                     // Otherwise if the provided element is an array
                     else if(_.isArray(link)) {
 
-                        Backbone.Model.prototype.set.call(this, rel, new Hal.LinkArray(link));
+                        Backbone.Model.prototype.set.call(this, rel, new Hal.LinkArray(link), options);
 
                     }
 
                     // Otherwise if the provided element is an object
                     else if(_.isObject(link)) {
 
-                        Backbone.Model.prototype.set.call(this, rel, new Hal.Link(link));
+                        Backbone.Model.prototype.set.call(this, rel, new Hal.Link(link), options);
 
                     }
 
+                    // Null or undefined are authorized
+                    else if(_.isNull(link) || _.isUndefined(link)) {
+
+                        Backbone.Model.prototype.set.call(this, rel, link, options);
+
+                    }
+                    
                     // Otherwise this is an error
                     else {
 
@@ -123,8 +130,22 @@ Hal.Links = Backbone.Model.extend(
 
             for(var rel in this.attributes) {
 
-                json[rel] = this.attributes[rel].toJSON(_options);
-
+                var resource = this.attributes[rel];
+                
+                // Null or undefined are authorized
+                if(_.isNull(resource) || _.isUndefined(resource)) {
+                
+                    json[rel] = resource;
+                        
+                } 
+                
+                // Otherwise we expect a Hal.Model
+                else {
+                    
+                    json[rel] = resource.toJSON(_options);
+                    
+                }
+                
             }
 
             return json;

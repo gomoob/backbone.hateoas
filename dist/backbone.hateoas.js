@@ -173,7 +173,7 @@
                         // If the provided element is already a Hal.Model or a Hal.Collection we set it directly
                         if(embeddedResource instanceof Hal.Model || embeddedResource instanceof Hal.Collection) {
     
-                            Backbone.Model.prototype.set.call(this, rel, embeddedResource);
+                            Backbone.Model.prototype.set.call(this, rel, embeddedResource, options);
     
                         }
     
@@ -201,22 +201,21 @@
     
                             }
     
-                            Backbone.Model.prototype.set.call(this, rel, array);
+                            Backbone.Model.prototype.set.call(this, rel, array, options);
     
                         }
     
                         // The current embedded resource is a plain HAL object
                         else if(_.isObject(embeddedResource)){
     
-                            Backbone.Model.prototype.set.call(this, rel, new Hal.Model(embeddedResource));
+                            Backbone.Model.prototype.set.call(this, rel, new Hal.Model(embeddedResource), options);
     
                         }
     
-                        // Null or undefined is authorized, in most case it is encounterd when the 'unset(attr)' method is
-                        // called
+                        // Null or undefined are authorized
                         else if(_.isNull(embeddedResource) || _.isUndefined(embeddedResource)) {
     
-                            Backbone.Model.prototype.set.call(this, rel, embeddedResource);
+                            Backbone.Model.prototype.set.call(this, rel, embeddedResource, options);
     
                         }
     
@@ -253,16 +252,36 @@
                 for(var rel in this.attributes) {
     
                     var resource = this.attributes[rel];
-    
+                    
+                    // Null or undefined are authorized, in most case it is encountered when the 'unset(attr)' method is
+                    // called
+                    if(_.isUndefined(resource) || _.isNull(resource)) {
+                    
+                        json[rel] = resource;
+                            
+                    } 
+                    
                     // If the embedded resource is an array then we convert each object
                     // FIXME: Ici il faut pouvoir serialiser les collections Backbone également ?
-                    if(_.isArray(resource)) {
+                    else if(_.isArray(resource)) {
     
                         json[rel] = [];
     
                         for(var i = 0; i < resource.length; ++i) {
     
-                            json[rel].push(resource[i].toJSON(_options));
+                            // A embedded resource can be undefined or null, in that case we convert it in a null json value  
+                            if(_.isUndefined(resource[i]) || _.isNull(resource[i])) {
+                            
+                                json[rel].push(resource[i]);
+                                    
+                            } 
+    
+                            // Otherwise we expect a Hal.Model
+                            else {
+                                
+                                json[rel].push(resource[i].toJSON(_options));
+                                
+                            }
     
                         }
     
@@ -271,7 +290,7 @@
                     // Otherwise we expect a Hal.Model
                     else {
     
-                        json[rel] = this.attributes[rel].toJSON(_options);
+                        json[rel] = resource.toJSON(_options);
     
                     }
     
@@ -782,24 +801,31 @@
                         // If the provided element is already a Hal.Link we set it directly
                         if(link instanceof Hal.Link) {
     
-                            Backbone.Model.prototype.set.call(this, rel, link);
+                            Backbone.Model.prototype.set.call(this, rel, link, options);
     
                         }
     
                         // Otherwise if the provided element is an array
                         else if(_.isArray(link)) {
     
-                            Backbone.Model.prototype.set.call(this, rel, new Hal.LinkArray(link));
+                            Backbone.Model.prototype.set.call(this, rel, new Hal.LinkArray(link), options);
     
                         }
     
                         // Otherwise if the provided element is an object
                         else if(_.isObject(link)) {
     
-                            Backbone.Model.prototype.set.call(this, rel, new Hal.Link(link));
+                            Backbone.Model.prototype.set.call(this, rel, new Hal.Link(link), options);
     
                         }
     
+                        // Null or undefined are authorized
+                        else if(_.isNull(link) || _.isUndefined(link)) {
+    
+                            Backbone.Model.prototype.set.call(this, rel, link, options);
+    
+                        }
+                        
                         // Otherwise this is an error
                         else {
     
@@ -832,8 +858,22 @@
     
                 for(var rel in this.attributes) {
     
-                    json[rel] = this.attributes[rel].toJSON(_options);
-    
+                    var resource = this.attributes[rel];
+                    
+                    // Null or undefined are authorized
+                    if(_.isNull(resource) || _.isUndefined(resource)) {
+                    
+                        json[rel] = resource;
+                            
+                    } 
+                    
+                    // Otherwise we expect a Hal.Model
+                    else {
+                        
+                        json[rel] = resource.toJSON(_options);
+                        
+                    }
+                    
                 }
     
                 return json;
@@ -1087,7 +1127,7 @@
          * @return {Hal.Model} This.
          */
         set: function(key, val, options) {
-    
+            
             var attr, attrs, k;
     
             if (key === null) {
@@ -1101,11 +1141,11 @@
     
                 attrs = key;
                 options = val;
-    
+                
             } else {
     
                 (attrs = {})[key] = val;
-    
+                
             }
     
             // If HAL links are declared
@@ -1147,9 +1187,9 @@
             }
     
             attrs = _.omit(attrs, '_links', '_embedded');
-    
-            return Backbone.Model.prototype.set.call(this, attrs, val, options);
-    
+            
+            return Backbone.Model.prototype.set.call(this, attrs, options, void 0);
+            
         },
     
         /**

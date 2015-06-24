@@ -472,14 +472,9 @@ describe(
                     _links : {
                         rel1 : {
                             href: 'http://myserver.com/api/users/1'
-                        }
-                        /* Set it after fixing issue 8
-                         *
-                         * @see https://github.com/gomoob/backbone.hateoas/issues/8
-                        ,
+                        },
                         rel2 : null,
                         rel3 : undefined
-                        */
                     }
                 });
 
@@ -1468,6 +1463,141 @@ describe(
 
             });
 
+        });
+        
+        describe('unsetEmbedded', function() {
+            
+            /**
+             * Unit test used to check that the behavior of the unset function of the Hal.Embedded object is identical 
+             * to the similar function of the the Backbone.Model object.
+             *  
+             * @see https://github.com/gomoob/backbone.hateoas/issues/5
+             */ 
+            it('With simple use case', function() {
+                
+                var model = new Hal.Model(
+                    {
+                        firstName : 'Baptiste',
+                        lastName : 'Gaillard',
+                        _embedded : {
+                            address : {
+                                city : 'Paris',
+                                country : 'France',
+                                street : '142 Rue de Rivoli',
+                                zip : '75001',
+                                _links : {
+                                    self : {
+                                        href : 'http://myserver.com/api/addresses/1'
+                                    }
+                                }
+                            },
+                            friends : [
+                                {
+                                    firstName : 'Simon',
+                                    lastName : 'Baudry',
+                                    _links : {
+                                        self : {
+                                            href: 'http://myserver.com/api/users/2'
+                                        }
+                                    }
+                                },
+                                {
+                                    firstName : 'John',
+                                    lastName : 'Doe',
+                                    _links : {
+                                        self : {
+                                            href: 'http://myserver.com/api/users/3'
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                );
+                
+                // Checks the model
+                expect(Object.keys(model.attributes)).to.have.length(2);
+                expect(model.attributes.firstName).to.equal('Baptiste');
+                expect(model.attributes.lastName).to.equal('Gaillard');
+                expect(model.getLinks().attributes).to.be.empty;
+                expect(Object.keys(model.getEmbedded().attributes)).to.have.length(2);
+                expect(
+                    JSON.stringify(model.getEmbedded('address').toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(model.getEmbedded('friends')).to.have.length(2);
+                expect(
+                    JSON.stringify(model.getEmbedded('friends')[0].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'Simon',
+                            lastName : 'Baudry',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/2'
+                                }
+                            }
+                        }
+                    )
+                );
+                expect(
+                    JSON.stringify(model.getEmbedded('friends')[1].toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            firstName : 'John',
+                            lastName : 'Doe',
+                            _links : {
+                                self : {
+                                    href: 'http://myserver.com/api/users/3'
+                                }
+                            }
+                        }
+                    )
+                );
+                
+                model.unsetEmbedded('friends');
+                
+                // Checks the model
+                expect(Object.keys(model.attributes)).to.have.length(2);
+                expect(model.attributes.firstName).to.equal('Baptiste');
+                expect(model.attributes.lastName).to.equal('Gaillard');
+                expect(model.getLinks().attributes).to.be.empty;
+                expect(Object.keys(model.getEmbedded().attributes)).to.have.length(1);
+                expect(
+                    JSON.stringify(model.getEmbedded('address').toJSON({contentType : 'application/hal+json'}))
+                ).to.equal(
+                    JSON.stringify(
+                        {
+                            city : 'Paris',
+                            country : 'France',
+                            street : '142 Rue de Rivoli',
+                            zip : '75001',
+                            _links : {
+                                self : {
+                                    href : 'http://myserver.com/api/addresses/1'
+                                }
+                            }
+                        }
+                    )
+                );
+                
+            });
+            
         });
 
     }
