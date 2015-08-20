@@ -7,93 +7,6 @@
 Hal.Embedded = Backbone.Model.extend(
     {
         /**
-         * Function used to initialize the links.
-         *
-         * @param {Object} options Options used to initialize the links.
-         * @param {Object} embedded An object which maps HAL relation types to model classes the `_embedded` contains,
-         *        the purpose of this property is the same as the Backbone.Collection `model` property except it defines
-         *        a model class for each embedded resource.
-         */
-//        initialize : function(attributes, options) {
-
-            // FIXME: Doit être fait dans la méthode set(key, val, options) de la même manière que pour Hal.Model !!!
-//            _.map(
-//                attributes,
-//                function(embeddedResource, rel) {
-//
-//                    var halResource = null;
-//
-//                    // If 'embedded' is provided then we try to find a specified model or collection class
-//                    if(this.embedded) {
-//
-//                        // The embedded resource is created using a function
-//                        if(_.isFunction(this.embedded[rel])) {
-//
-//                            halResource = this.embedded[rel](rel, embeddedResource, options);
-//
-//                        }
-//
-//                        // The embedded resource is created using an Hal Collection
-//                        else if(this.embedded[rel] instanceof Hal.Collection) {
-//
-//                            halResource = new Hal.Collection(embeddedResource);
-//
-//                        }
-//
-//                        // The embedded resource is created using an Hal Model
-//                        else if(this.embedded[rel] instanceof Hal.Model) {
-//
-//                            halResource = new Hal.Model(embeddedResource);
-//
-//                        }
-//
-//                        // Otherwise this is an error
-//                        else {
-//
-//                            throw new Error(
-//                                'Invalid embedded model or collection class provided for \'rel\'=\'' + rel + '\' !'
-//                            );
-//
-//                        }
-//
-//                    }
-//
-//                    // Otherwise if the '_embedded' resource is an array we consider it to be an Hal Collection
-//                    else if(_.isArray(embeddedResource)) {
-//
-//                        halResource = [];
-//
-//                        _.each(embeddedResource, function(el) {
-//
-//                            halResource.push(new Hal.Model(el));
-//
-//                        });
-//
-//                    }
-//
-//                    // Otherwise of the '_embedded' resourec is an object we consider it to be an Hal Model
-//                    else if(_.isObject(embeddedResource)) {
-//
-//                        halResource = new Hal.Model(embeddedResource);
-//
-//                    }
-//
-//                    // Otherwise this is an error
-//                    else {
-//
-//                        throw new Error('Invalid embedded resource identified by \'rel\'=\'' + rel + '\' !');
-//
-//                    }
-//
-//                    this.set(rel, halResource);
-//
-//                },
-//                this
-//            );
-
-//        },
-
-        /**
          * Set a hash of model attributes on the object, firing `"change"`. This is the core primitive operation of a
          * model, updating the data and notifying anyone who needs to know about the change in state. The heart of the
          * beast.
@@ -131,8 +44,21 @@ Hal.Embedded = Backbone.Model.extend(
                 attrs,
                 function(embeddedResource, rel) {
 
-                    // If the provided element is already a Hal.Model or a Hal.Collection we set it directly
-                    if(embeddedResource instanceof Hal.Model || embeddedResource instanceof Hal.Collection) {
+                    // If the provided element is of type
+                    //  - Backbone.Model
+                    //  - Backbone.Collection
+                    //  - Hal.Model
+                    //  - Hal.Collection
+                    // Then we set it directly
+                    //
+                    // FIXME: Il est bien de pouvoir utiliser des types Backbone classique, mais du coup ceux-ci ne vont
+                    //        pas avoir les mêmes méthode que pour les tpes Hal. En fait il faudrait prévoir un
+                    //        refactoring de la librairie pour étendre Backbone.Model comment le font les librairies
+                    //        Backbone.Stickit ou Backbone.Validation
+                    if(embeddedResource instanceof Backbone.Model ||
+                       embeddedResource instanceof Backbone.Collection ||
+                       embeddedResource instanceof Hal.Model ||
+                       embeddedResource instanceof Hal.Collection) {
 
                         Backbone.Model.prototype.set.call(this, rel, embeddedResource, options);
 
@@ -146,8 +72,15 @@ Hal.Embedded = Backbone.Model.extend(
                         // For each embedded resource
                         for(var i = 0; i < embeddedResource.length; ++i) {
 
-                            // If the array element is already an Hal.Model or Hal.Collection object we set it directly
-                            if(embeddedResource[i] instanceof Hal.Model || embeddedResource[i] instanceof Hal.Collection) {
+                            // If the provided element is of type
+                            //  - Backbone.Model
+                            //  - Backbone.Collection
+                            //  - Hal.Model
+                            //  - Hal.Collection
+                            if(embeddedResource[i] instanceof Backbone.Model ||
+                               embeddedResource[i] instanceof Backbone.Collection ||
+                               embeddedResource[i] instanceof Hal.Model ||
+                               embeddedResource[i] instanceof Hal.Collection) {
 
                                 array.push(embeddedResource[i]);
 
@@ -166,7 +99,7 @@ Hal.Embedded = Backbone.Model.extend(
 
                     }
 
-                    // The current embedded resource is a plain HAL object
+                    // The current embedded resource is a plain Javascript object
                     else if(_.isObject(embeddedResource)){
 
                         Backbone.Model.prototype.set.call(this, rel, new Hal.Model(embeddedResource), options);
@@ -213,35 +146,34 @@ Hal.Embedded = Backbone.Model.extend(
             for(var rel in this.attributes) {
 
                 var resource = this.attributes[rel];
-                
+
                 // Null or undefined are authorized, in most case it is encountered when the 'unset(attr)' method is
                 // called
                 if(_.isUndefined(resource) || _.isNull(resource)) {
-                
+
                     json[rel] = resource;
-                        
-                } 
-                
+
+                }
+
                 // If the embedded resource is an array then we convert each object
-                // FIXME: Ici il faut pouvoir serialiser les collections Backbone également ?
                 else if(_.isArray(resource)) {
 
                     json[rel] = [];
 
                     for(var i = 0; i < resource.length; ++i) {
 
-                        // A embedded resource can be undefined or null, in that case we convert it in a null json value  
+                        // A embedded resource can be undefined or null, in that case we convert it in a null json value
                         if(_.isUndefined(resource[i]) || _.isNull(resource[i])) {
-                        
+
                             json[rel].push(resource[i]);
-                                
-                        } 
+
+                        }
 
                         // Otherwise we expect a Hal.Model
                         else {
-                            
+
                             json[rel].push(resource[i].toJSON(_options));
-                            
+
                         }
 
                     }
@@ -249,6 +181,10 @@ Hal.Embedded = Backbone.Model.extend(
                 }
 
                 // Otherwise we expect a Hal.Model
+                // FIXME: Ici il se peut que l'on tombe également sur un des 2 types suivants :
+                //  - Backbone.Model
+                //  - Backbone.Collection
+                //  - Hal.Collection
                 else {
 
                     json[rel] = resource.toJSON(_options);

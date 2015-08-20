@@ -88,7 +88,7 @@ describe(
             });
 
             it('With undefined and null embedded resources', function() {
-              
+
                 var embedded = new Hal.Embedded({
                     user : {
                         firstName : 'Baptiste',
@@ -102,7 +102,7 @@ describe(
                     undefinedEmbeddedRessource : undefined,
                     nullEmbeddedRessource : null
                 });
-                
+
                 // Checks the 'user' embedded resource
                 var user = embedded.get('user');
                 expect(user).to.be.an.instanceof(Hal.Model);
@@ -115,19 +115,40 @@ describe(
                 // Checks the 'undefinedEmbeddedRessource' embedded resource
                 expect(embedded.attributes).to.have.property('undefinedEmbeddedRessource');
                 expect(embedded.get('undefinedEmbeddedRessource')).to.be.undefined;
-                
+
                 // Checks the 'nullEmbeddedRessource' embedded resource
                 expect(embedded.attributes).to.have.property('nullEmbeddedRessource');
                 expect(embedded.get('nullEmbeddedRessource')).to.be.null;
-                
+
             });
-            
+
         });
-        
+
+        describe('set', function() {
+
+            it('With a Backbone.Collection object', function() {
+
+                var embedded = new Hal.Embedded(),
+                    collection = new Backbone.Collection();
+
+                collection.add({firstname: 'Baptiste', lastname : 'Gaillard'});
+
+                embedded.set('myCollection', collection);
+
+                expect(embedded.get('myCollection')).to.be.an.instanceof(Backbone.Collection);
+                expect(embedded.get('myCollection').size()).to.be.equal(1);
+                expect(embedded.get('myCollection').at(0)).to.be.an.instanceof(Backbone.Model);
+                expect(embedded.get('myCollection').at(0).get('firstname')).to.be.equal('Baptiste');
+                expect(embedded.get('myCollection').at(0).get('lastname')).to.be.equal('Gaillard');
+
+            });
+
+        });
+
         describe('toJSON', function() {
-           
+
             it('With very simple link', function() {
-                
+
                 var embedded = new Hal.Embedded({
                     user : {
                         firstName : 'Baptiste',
@@ -139,18 +160,18 @@ describe(
                         }
                     }
                 });
-                
+
                 expect(JSON.stringify(embedded.toJSON())).to.equal(JSON.stringify({
                     'user' : {
                         'firstName' : 'Baptiste',
                         'lastName' : 'Gaillard'
                     }
                 }));
-                
+
             });
-            
+
             it('With contentType parameter specified', function() {
-                
+
                 var embedded = new Hal.Embedded({
                     user : {
                         firstName : 'Baptiste',
@@ -162,14 +183,14 @@ describe(
                         }
                     }
                 });
-                
+
                 expect(JSON.stringify(embedded.toJSON({contentType : 'application/json'}))).to.equal(JSON.stringify({
                     'user' : {
                         'firstName' : 'Baptiste',
                         'lastName' : 'Gaillard'
                     }
                 }));
-                
+
                 expect(JSON.stringify(embedded.toJSON({contentType : 'application/hal+json'}))).to.equal(JSON.stringify({
                     'user' : {
                         'firstName' : 'Baptiste',
@@ -181,11 +202,11 @@ describe(
                         }
                     }
                 }));
-                
+
             });
-            
+
             it('With undefined and null values', function() {
-                
+
                 var embedded = new Hal.Embedded({
                         user : {
                             firstName : 'Baptiste',
@@ -200,7 +221,7 @@ describe(
                         nullEmbeddedRessource : null
                     }),
                     embeddedJSONified = embedded.toJSON();
-                
+
                 expect(JSON.stringify(embeddedJSONified)).to.equal(JSON.stringify({
                     'user' : {
                         'firstName' : 'Baptiste',
@@ -209,10 +230,10 @@ describe(
                     'undefinedEmbeddedRessource' : undefined,
                     'nullEmbeddedRessource' : null
                 }));
-                
+
             });
-            
+
         });
-        
+
     }
 );

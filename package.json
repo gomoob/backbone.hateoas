@@ -1,7 +1,7 @@
 {
   "name": "backbone-hateoas",
   "description": "Easy use of HAL in your Backbone application.",
-  "version": "0.1.0-beta.3",
+  "version": "0.1.0-beta.4",
   "license": "MIT",
   "homepage": "https://github.com/gomoob/backbone.hateoas",
   "author": {
@@ -31,31 +31,31 @@
     "url": "https://github.com/gomoob/backbone.hateoas"
   },
   "dependencies": {
-    "backbone": "1.0.0 - 1.2.0",
+    "backbone": "1.0.0 - 1.2.2",
     "underscore": "1.4.4 - 1.8.3",
     "backbone.paginator": "2.0.0 - 2.0.2"
   },
   "devDependencies": {
     "blanket": "~1.1",
-    "bower": "~1.3",
-    "chai": "~2.1",
+    "bower": "~1.4",
+    "chai": "~3.2",
     "grunt": "~0.4",
     "grunt-contrib-clean": "~0.6",
     "grunt-contrib-jshint": "~0.11",
-    "grunt-contrib-uglify": "~0.8",
+    "grunt-contrib-uglify": "~0.9",
     "grunt-coveralls": "^1.0.0",
-    "grunt-istanbul": "~0.5",
-    "grunt-jsdoc": "~0.5",
+    "grunt-istanbul": "~0.6",
+    "grunt-jsdoc": "~0.6",
     "grunt-mocha-test": "~0.12",
     "grunt-plato": "~1.2",
-    "grunt-preprocess": "~4.1",
+    "grunt-preprocess": "~5.0",
     "jquery": "~2.1",
     "jsdom": "~4.0",
-    "load-grunt-tasks": "~3.1",
+    "load-grunt-tasks": "~3.2",
     "mocha": "~2.2",
     "node-localstorage": "~0.5",
-    "sinon": "~1.14",
-    "sinon-chai": "~2.7",
-    "time-grunt": "~1.1"
+    "sinon": "~1.16",
+    "sinon-chai": "~2.8",
+    "time-grunt": "~1.2"
   }
 }
