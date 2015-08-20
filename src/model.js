@@ -147,6 +147,19 @@ Hal.Model = Backbone.Model.extend({
     },
 
     /**
+     * Remove an HAL link by deleting it from the internal attributes hash. Fires a "change" event unless silent is
+     * passed as an option.
+     *
+     * @param {String} rel The name of the relation type used to identify the HAL link to unset.
+     * @param {Object} options Options used to configure the unset operation.
+     */
+    unsetLink : function(rel, options) {
+
+        this.getLinks().unset(rel, options);
+
+    },
+
+    /**
      * Function used to initialize the view.
      *
      * @param {Object} options Options used to initialize the view.
@@ -243,7 +256,7 @@ Hal.Model = Backbone.Model.extend({
      * @return {Hal.Model} This.
      */
     set: function(key, val, options) {
-        
+
         var attr, attrs, k;
 
         if (key === null) {
@@ -257,11 +270,11 @@ Hal.Model = Backbone.Model.extend({
 
             attrs = key;
             options = val;
-            
+
         } else {
 
             (attrs = {})[key] = val;
-            
+
         }
 
         // If HAL links are declared
@@ -303,9 +316,9 @@ Hal.Model = Backbone.Model.extend({
         }
 
         attrs = _.omit(attrs, '_links', '_embedded');
-        
+
         return Backbone.Model.prototype.set.call(this, attrs, options, void 0);
-        
+
     },
 
     /**
