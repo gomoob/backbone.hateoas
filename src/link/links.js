@@ -97,11 +97,21 @@ Hal.Links = Backbone.Model.extend(
                         Backbone.Model.prototype.set.call(this, rel, link, options);
 
                     }
-                    
+
                     // Otherwise this is an error
                     else {
 
-                        throw new Error('Invalid link identified by \'rel\'=\'' + rel + '\' !');
+                        Hal.ErrorHandler.capture(
+                            'Invalid embedded identified by \'rel\'=\'' + rel + '\' !',
+                            'Hal.Links.set',
+                            {
+                                key : key,
+                                link : link,
+                                options : options,
+                                rel : rel,
+                                val : val
+                            }
+                        );
 
                     }
 
@@ -131,21 +141,21 @@ Hal.Links = Backbone.Model.extend(
             for(var rel in this.attributes) {
 
                 var resource = this.attributes[rel];
-                
+
                 // Null or undefined are authorized
                 if(_.isNull(resource) || _.isUndefined(resource)) {
-                
+
                     json[rel] = resource;
-                        
-                } 
-                
+
+                }
+
                 // Otherwise we expect a Hal.Model
                 else {
-                    
+
                     json[rel] = resource.toJSON(_options);
-                    
+
                 }
-                
+
             }
 
             return json;

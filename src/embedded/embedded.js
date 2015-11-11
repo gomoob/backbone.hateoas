@@ -116,7 +116,17 @@ Hal.Embedded = Backbone.Model.extend(
                     // Otherwise this is an error
                     else {
 
-                        throw new Error('Invalid embedded resource identified by \'rel\'=\'' + rel + '\' !');
+                        Hal.ErrorHandler.capture(
+                            'Invalid embedded resource identified by \'rel\'=\'' + rel + '\' !',
+                            'Hal.Embedded.set',
+                            {
+                                embeddedResource : embeddedResource,
+                                key : key,
+                                options : options,
+                                rel : rel,
+                                val : val
+                            }
+                        );
 
                     }
 

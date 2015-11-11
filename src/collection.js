@@ -1,5 +1,5 @@
 (function() {
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // PRIVATE MEMBERS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,18 +13,18 @@
 
     /**
      * Specialized Hal Collection.
-     * 
+     *
      * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
      * @author Simon BAUDRY (simon.baudry@gomoob.com)
      */
     Hal.Collection = Backbone.PageableCollection.extend(
         {
-            // This is required to have access to a 'fullCollection' and to navigate inside the collection using the 
+            // This is required to have access to a 'fullCollection' and to navigate inside the collection using the
             // 'prev', 'next' and 'last' links.
             mode: 'infinite',
-            
+
             model : Hal.Model,
-            
+
             queryParams : {
                 currentPage : 'page',
                 pageSize : 'page_size',
@@ -35,76 +35,95 @@
                 firstPage : 1,
                 pageSize : 12
             },
-            
+
             parseLinks: function (resp, xhr) {
-                
+
                 // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
                 if(!resp._links.first && this.mode === 'infinite' && resp.total_items !== 0) {
-                    
-                    throw new Error(
-                        'You are using the \'infinite\' mode and the server did not returned a \'first\' ' + 
-                        'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' + 
-                        'is well formed. If your collection is not paginated you could use the \'server\' mode instead.'
+
+                    Hal.ErrorHandler.capture(
+                        'You are using the \'infinite\' mode and the server did not returned a \'first\' ' +
+                        'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' +
+                        'is well formed. If your collection is not paginated you could use the \'server\' mode ' +
+                        'instead.',
+                        'Hal.Collection.parseLinks',
+                        {
+                            resp : resp,
+                            xhr : xhr
+                        }
                     );
 
                 }
-                
+
                 // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
                 if(!resp._links.last && this.mode === 'infinite' && resp.total_items !== 0) {
-                    
-                    throw new Error(
-                        'You are using the \'infinite\' mode and the server did not returned a \'last\' ' + 
-                        'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' + 
-                        'is well formed. If your collection is not paginated you could use the \'server\' mode instead.'
+
+                    Hal.ErrorHandler.capture(
+                        'You are using the \'infinite\' mode and the server did not returned a \'last\' link ' +
+                        'attached to the HAL Collection. Check if the collection URL is correct and the payload is ' +
+                        'well formed. If your collection is not paginated you could use the \'server\' mode instead.',
+                        'Hal.Collection.parseLinks',
+                        {
+                            resp : resp,
+                            xhr : xhr
+                        }
                     );
 
                 }
 
                 var links = {};
-                
+
                 if(resp.total_items !== 0) {
                     links.first = resp._links.first.href;
                     links.last = resp._links.last.href;
                 }
-                
+
                 if(resp._links.next) {
                     links.next = resp._links.next.href;
                 }
-                
+
                 if(resp._links.prev) {
                     links.prev = resp._links.prev.href;
                 }
-                
+
                 return links;
 
             },
-            
+
             parseRecords : function(resp, options) {
 
                 // The 'rel' parameter is required !
                 if(!this.rel) {
 
-                    throw new Error('A \'rel\' parameter is required !');
+                    Hal.ErrorHandler.capture(
+                        'A \'rel\' parameter is required !',
+                        'Hal.Collection.parseRecords',
+                        {
+                            rel : this.rel,
+                            resp : resp,
+                            options : options
+                        }
+                    );
 
                 }
 
                 return resp._embedded[this.rel];
-                    
+
             },
 
             parseState: function (resp, queryParams, state, options) {
-                
+
                 return {
                     totalItems: resp.total_items
                 };
-                
+
             },
-            
-            // FIXME: Cette fonction a presque le même code que PageableCollection.getPage(index, options) excepté 
-            //        qu'elle appelle la fonction de callback 'options.success()' si l'on est en mode 'infinite' et que 
-            //        la page demandée a déjà été récupérée. Sans ce fixe les fonctions 'getPreviousPage()' et 
-            //        'getNextPage()' n'appellent leurs méthodes de callbacks 'success()' ou 'error()' que si les 
-            //        données associées aux pages n'ont pas déjà été récupérées !!! 
+
+            // FIXME: Cette fonction a presque le même code que PageableCollection.getPage(index, options) excepté
+            //        qu'elle appelle la fonction de callback 'options.success()' si l'on est en mode 'infinite' et que
+            //        la page demandée a déjà été récupérée. Sans ce fixe les fonctions 'getPreviousPage()' et
+            //        'getNextPage()' n'appellent leurs méthodes de callbacks 'success()' ou 'error()' que si les
+            //        données associées aux pages n'ont pas déjà été récupérées !!!
             // TODO: Poster un cas sur le Github du projet et faire un Pull Request
             getPage: function (index, options) {
 
@@ -129,7 +148,7 @@
 
                 this.state = this._checkState(_.extend({}, state, {currentPage: pageNum}));
 
-                options.from = currentPage; 
+                options.from = currentPage;
                 options.to = pageNum;
 
                 var pageStart = (firstPage === 0 ? pageNum : pageNum - 1) * pageSize;
@@ -138,14 +157,14 @@
                   [];
                 if ((mode == "client" || (mode == "infinite" && !_.isEmpty(pageModels))) &&
                     !options.fetch) {
-                  
+
                     this.reset(pageModels, _.omit(options, "fetch"));
-                  
+
                     // >>>> Bout de code ajouté
                     // FIXME: On a pas la réponse ici ???
                     options.success(pageModels, null /* response */, options);
                     // <<<<
-                    
+
                   return this;
                 }
 
@@ -156,5 +175,5 @@
 
         }
     );
-    
+
 })();

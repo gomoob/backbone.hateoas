@@ -10,7 +10,7 @@ global.sinon = sinon;
 global.slice = Array.prototype.slice;
 
 global.navigator = {
-    userAgent : 'unknown', 
+    userAgent : 'unknown',
     appVersion : 'unknown'
 };
 
@@ -21,10 +21,12 @@ global._ = require('underscore');
 global.Backbone = require('backbone');
 global.Backbone.PageableCollection = require('backbone.paginator');
 
-// Please note that we do note require the 'umd-wrapper' module because we do not want to use it for code coverage and 
+// Please note that we do note require the 'umd-wrapper' module because we do not want to use it for code coverage and
 // because it contains very simple code
 Hal = {};
 
+require(process.env.srcDir + '/error');
+require(process.env.srcDir + '/error-handler');
 require(process.env.srcDir + '/embedded/embedded');
 require(process.env.srcDir + '/link/link');
 require(process.env.srcDir + '/link/link-array');

@@ -362,7 +362,15 @@ Hal.Model = Backbone.Model.extend({
             // If we fail to create a base generates an error
             if(!base) {
 
-                throw new Error('A "url" property or function must be specified');
+                Hal.ErrorHandler.capture(
+                    'A "url" property or function must be specified !',
+                    'Hal.Model.url',
+                    {
+                        base : base,
+                        halUrlRoot : halUrlRoot,
+                        urlMiddle : urlMiddle
+                    }
+                );
 
             }
 

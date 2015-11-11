@@ -37,6 +37,8 @@
      */
     var Hal = {};
 
+    // @include error.js
+    // @include error-handler.js
     // @include embedded/embedded.js
     // @include link/link.js
     // @include link/link-array.js

@@ -1,7 +1,7 @@
 /*jshint -W030 */
 
 describe(
-    'Hal.LinkArray', 
+    'Hal.LinkArray',
     function() {
 
         describe('initialize', function() {
@@ -14,9 +14,9 @@ describe(
                 );
 
             });
-            
+
             it('With models', function() {
-               
+
                 var linkArray = new Hal.LinkArray(
                     [
                         {
@@ -27,7 +27,7 @@ describe(
                         }
                     ]
                 );
-                
+
                 expect(linkArray.size()).to.equal(2);
                 expect(linkArray.at(0)).to.be.defined;
                 expect(linkArray.at(0).getHref()).to.equal('http://myserver.com/api/users/2');
@@ -35,13 +35,13 @@ describe(
                 expect(linkArray.at(1).getHref()).to.equal('http://myserver.com/api/users/3');
 
             });
-            
+
         });
-        
+
         describe('toJSON', function() {
-           
+
             it('With models', function() {
-                
+
                 var linkArray = new Hal.LinkArray(
                     [
                         {
@@ -52,7 +52,7 @@ describe(
                         }
                     ]
                 );
-                
+
                 expect(JSON.stringify(linkArray.toJSON())).to.equal(
                     JSON.stringify(
                         [
@@ -67,7 +67,7 @@ describe(
                 );
 
             });
-            
+
         });
     }
 );

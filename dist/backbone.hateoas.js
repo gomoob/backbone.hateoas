@@ -38,6 +38,55 @@
     var Hal = {};
 
     /**
+     * Object which defines an Error encountered in the library.
+     *
+     * This class extends the standard Javascript `Error` class by adding several useful informations :
+     *  * The name of the method where the error was encountered ;
+     *  * A context object which can transport several useful informations about the error.
+     *
+     * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+     */
+    Hal.Error = function(message) {
+        this.name = 'HalError';
+        this.message = message;
+        this.stack = (new Error()).stack;
+    
+        // This is what Hal.Error adds to the standard Javascript Error class
+        this.context = null;
+        this.method = null;
+    };
+    Hal.Error.prototype = new Error();
+    
+    /**
+     * Object which defines an Error Handler used in the library, this error handler is the default one used. Developers can
+     * easily override this Error Handler to implement their own error handling code.
+     *
+     * In the library each time an error is encountered the `capture(message, context)` method is called, then by default
+     * the library throws an `Hal.Error`.
+     *
+     * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+     */
+    Hal.ErrorHandler = {
+    
+        /**
+         * Function used to capture a new error.
+         *
+         * @param message A message describing the error.
+         * @param method The name of the method where the error was encountered.
+         * @param context An object which transport additional informations about the error.
+         *
+         * @throws Hal.Error The encountered error.
+         */
+        capture : function(message, method, context)
+        {
+            var halError = new Hal.Error(message);
+            halError.method = method;
+            halError.context = context;
+            throw halError;
+        }
+    };
+    
+    /**
      * Backbone model which represents a set of embedded resources.
      *
      * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
@@ -155,7 +204,17 @@
                         // Otherwise this is an error
                         else {
     
-                            throw new Error('Invalid embedded resource identified by \'rel\'=\'' + rel + '\' !');
+                            Hal.ErrorHandler.capture(
+                                'Invalid embedded resource identified by \'rel\'=\'' + rel + '\' !',
+                                'Hal.Embedded.set',
+                                {
+                                    embeddedResource : embeddedResource,
+                                    key : key,
+                                    options : options,
+                                    rel : rel,
+                                    val : val
+                                }
+                            );
     
                         }
     
@@ -288,7 +347,13 @@
                 // The "href" property is mandatory
                 if(!_.isObject(options) || !_.isString(options.href)) {
     
-                    throw new Error('Missing required property "href" !');
+                    Hal.ErrorHandler.capture(
+                        'Missing required property "href" !',
+                        'Hal.Link.initialize',
+                        {
+                            options : options
+                        }
+                    );
     
                 }
     
@@ -618,41 +683,48 @@
     
     /**
      * Backbone collection which represents a set of HAL Links.
-     * 
+     *
      * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
      */
     Hal.LinkArray = Backbone.Collection.extend(
         {
             /**
              * The class of the models this Backbone Collection stores / instanciate.
-             * 
+             *
              * @var {Hal.Link}
              */
             model : Hal.Link,
-            
+    
             /**
              * Function used to initialize the Link Array.
-             * 
+             *
              * @param {Object[]} models An array of links used to create the link array.
              * @param {Object} options Options used to initialize the Link Array.
              */
             initialize : function(models, options) {
-                
+    
                 // A link array MUST BE created with models
                 if(!_.isArray(models) || models.length === 0) {
-                    
-                    throw new Error('A LinkArray MUST BE created with at least one link model !');
-                    
+    
+                    Hal.ErrorHandler.capture(
+                        'A LinkArray MUST BE created with at least one link model !',
+                        'Hal.LinkArray.initialize',
+                        {
+                            models : models,
+                            options : options
+                        }
+                    );
+    
                 }
-                
+    
                 // Calls the parent Backbone initialize method
                 return Backbone.Collection.prototype.initialize.apply(this, models, options);
     
             },
-            
+    
             /**
              * Utility function used to indicate if this link is an HAL Link Array.
-             * 
+             *
              * @return {Boolean} Always true here because this link a Link Array.
              */
             isArray : function() {
@@ -761,11 +833,21 @@
                             Backbone.Model.prototype.set.call(this, rel, link, options);
     
                         }
-                        
+    
                         // Otherwise this is an error
                         else {
     
-                            throw new Error('Invalid link identified by \'rel\'=\'' + rel + '\' !');
+                            Hal.ErrorHandler.capture(
+                                'Invalid embedded identified by \'rel\'=\'' + rel + '\' !',
+                                'Hal.Links.set',
+                                {
+                                    key : key,
+                                    link : link,
+                                    options : options,
+                                    rel : rel,
+                                    val : val
+                                }
+                            );
     
                         }
     
@@ -795,21 +877,21 @@
                 for(var rel in this.attributes) {
     
                     var resource = this.attributes[rel];
-                    
+    
                     // Null or undefined are authorized
                     if(_.isNull(resource) || _.isUndefined(resource)) {
-                    
+    
                         json[rel] = resource;
-                            
-                    } 
-                    
+    
+                    }
+    
                     // Otherwise we expect a Hal.Model
                     else {
-                        
+    
                         json[rel] = resource.toJSON(_options);
-                        
+    
                     }
-                    
+    
                 }
     
                 return json;
@@ -1182,7 +1264,15 @@
                 // If we fail to create a base generates an error
                 if(!base) {
     
-                    throw new Error('A "url" property or function must be specified');
+                    Hal.ErrorHandler.capture(
+                        'A "url" property or function must be specified !',
+                        'Hal.Model.url',
+                        {
+                            base : base,
+                            halUrlRoot : halUrlRoot,
+                            urlMiddle : urlMiddle
+                        }
+                    );
     
                 }
     
@@ -1204,7 +1294,7 @@
     });
     
     (function() {
-        
+    
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // PRIVATE MEMBERS
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1218,18 +1308,18 @@
     
         /**
          * Specialized Hal Collection.
-         * 
+         *
          * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
          * @author Simon BAUDRY (simon.baudry@gomoob.com)
          */
         Hal.Collection = Backbone.PageableCollection.extend(
             {
-                // This is required to have access to a 'fullCollection' and to navigate inside the collection using the 
+                // This is required to have access to a 'fullCollection' and to navigate inside the collection using the
                 // 'prev', 'next' and 'last' links.
                 mode: 'infinite',
-                
+    
                 model : Hal.Model,
-                
+    
                 queryParams : {
                     currentPage : 'page',
                     pageSize : 'page_size',
@@ -1240,76 +1330,95 @@
                     firstPage : 1,
                     pageSize : 12
                 },
-                
+    
                 parseLinks: function (resp, xhr) {
-                    
+    
                     // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
                     if(!resp._links.first && this.mode === 'infinite' && resp.total_items !== 0) {
-                        
-                        throw new Error(
-                            'You are using the \'infinite\' mode and the server did not returned a \'first\' ' + 
-                            'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' + 
-                            'is well formed. If your collection is not paginated you could use the \'server\' mode instead.'
+    
+                        Hal.ErrorHandler.capture(
+                            'You are using the \'infinite\' mode and the server did not returned a \'first\' ' +
+                            'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' +
+                            'is well formed. If your collection is not paginated you could use the \'server\' mode ' +
+                            'instead.',
+                            'Hal.Collection.parseLinks',
+                            {
+                                resp : resp,
+                                xhr : xhr
+                            }
                         );
     
                     }
-                    
+    
                     // The 'infinite' mode requires a 'first' link in the payload of the received HAL Collection
                     if(!resp._links.last && this.mode === 'infinite' && resp.total_items !== 0) {
-                        
-                        throw new Error(
-                            'You are using the \'infinite\' mode and the server did not returned a \'last\' ' + 
-                            'link attached to the HAL Collection. Check if the collection URL is correct and the payload ' + 
-                            'is well formed. If your collection is not paginated you could use the \'server\' mode instead.'
+    
+                        Hal.ErrorHandler.capture(
+                            'You are using the \'infinite\' mode and the server did not returned a \'last\' link ' +
+                            'attached to the HAL Collection. Check if the collection URL is correct and the payload is ' +
+                            'well formed. If your collection is not paginated you could use the \'server\' mode instead.',
+                            'Hal.Collection.parseLinks',
+                            {
+                                resp : resp,
+                                xhr : xhr
+                            }
                         );
     
                     }
     
                     var links = {};
-                    
+    
                     if(resp.total_items !== 0) {
                         links.first = resp._links.first.href;
                         links.last = resp._links.last.href;
                     }
-                    
+    
                     if(resp._links.next) {
                         links.next = resp._links.next.href;
                     }
-                    
+    
                     if(resp._links.prev) {
                         links.prev = resp._links.prev.href;
                     }
-                    
+    
                     return links;
     
                 },
-                
+    
                 parseRecords : function(resp, options) {
     
                     // The 'rel' parameter is required !
                     if(!this.rel) {
     
-                        throw new Error('A \'rel\' parameter is required !');
+                        Hal.ErrorHandler.capture(
+                            'A \'rel\' parameter is required !',
+                            'Hal.Collection.parseRecords',
+                            {
+                                rel : this.rel,
+                                resp : resp,
+                                options : options
+                            }
+                        );
     
                     }
     
                     return resp._embedded[this.rel];
-                        
+    
                 },
     
                 parseState: function (resp, queryParams, state, options) {
-                    
+    
                     return {
                         totalItems: resp.total_items
                     };
-                    
+    
                 },
-                
-                // FIXME: Cette fonction a presque le même code que PageableCollection.getPage(index, options) excepté 
-                //        qu'elle appelle la fonction de callback 'options.success()' si l'on est en mode 'infinite' et que 
-                //        la page demandée a déjà été récupérée. Sans ce fixe les fonctions 'getPreviousPage()' et 
-                //        'getNextPage()' n'appellent leurs méthodes de callbacks 'success()' ou 'error()' que si les 
-                //        données associées aux pages n'ont pas déjà été récupérées !!! 
+    
+                // FIXME: Cette fonction a presque le même code que PageableCollection.getPage(index, options) excepté
+                //        qu'elle appelle la fonction de callback 'options.success()' si l'on est en mode 'infinite' et que
+                //        la page demandée a déjà été récupérée. Sans ce fixe les fonctions 'getPreviousPage()' et
+                //        'getNextPage()' n'appellent leurs méthodes de callbacks 'success()' ou 'error()' que si les
+                //        données associées aux pages n'ont pas déjà été récupérées !!!
                 // TODO: Poster un cas sur le Github du projet et faire un Pull Request
                 getPage: function (index, options) {
     
@@ -1334,7 +1443,7 @@
     
                     this.state = this._checkState(_.extend({}, state, {currentPage: pageNum}));
     
-                    options.from = currentPage; 
+                    options.from = currentPage;
                     options.to = pageNum;
     
                     var pageStart = (firstPage === 0 ? pageNum : pageNum - 1) * pageSize;
@@ -1343,14 +1452,14 @@
                       [];
                     if ((mode == "client" || (mode == "infinite" && !_.isEmpty(pageModels))) &&
                         !options.fetch) {
-                      
+    
                         this.reset(pageModels, _.omit(options, "fetch"));
-                      
+    
                         // >>>> Bout de code ajouté
                         // FIXME: On a pas la réponse ici ???
                         options.success(pageModels, null /* response */, options);
                         // <<<<
-                        
+    
                       return this;
                     }
     
@@ -1361,7 +1470,7 @@
     
             }
         );
-        
+    
     })();
 
     return Hal;

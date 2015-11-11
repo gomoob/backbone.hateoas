@@ -1,7 +1,7 @@
 {
   "name": "backbone-hateoas",
   "description": "Easy use of HAL in your Backbone application.",
-  "version": "0.1.0-beta.4",
+  "version": "0.1.0-beta.5",
   "license": "MIT",
   "homepage": "https://github.com/gomoob/backbone.hateoas",
   "author": {

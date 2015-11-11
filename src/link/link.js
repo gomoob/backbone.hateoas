@@ -48,7 +48,13 @@ Hal.Link = Backbone.Model.extend(
             // The "href" property is mandatory
             if(!_.isObject(options) || !_.isString(options.href)) {
 
-                throw new Error('Missing required property "href" !');
+                Hal.ErrorHandler.capture(
+                    'Missing required property "href" !',
+                    'Hal.Link.initialize',
+                    {
+                        options : options
+                    }
+                );
 
             }
 
